@@ -1,0 +1,336 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm kiếm - Nexus Sinh Viên</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .layout-tim-kiem {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .cot-phai {
+            position: sticky;
+            top: 100px;
+        }
+
+        #map {
+            height: 600px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            background: #e8eaf0;
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+            .filter-bar input,
+            .filter-bar select {
+                padding: 12px 18px;
+                border-radius: 10px;
+                border: 2px solid #e2e8f0;
+                font-size: 15px;
+                margin-right: 10px;
+                margin-bottom: 10px;
+            }
+
+                .filter-bar input:focus,
+                .filter-bar select:focus {
+                    outline: none;
+                    border-color: #667eea;
+                }
+
+        .co-so-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+            .co-so-item:hover {
+                transform: translateX(5px);
+                box-shadow: 0 5px 20px rgba(102,126,234,0.2);
+                border-left: 4px solid #667eea;
+            }
+
+            .co-so-item .icon-box {
+                width: 60px;
+                height: 60px;
+                background: linear-gradient(135deg, #a8b8e8, #d0a8e8);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 28px;
+                flex-shrink: 0;
+            }
+
+            .co-so-item .info {
+                flex: 1;
+            }
+
+            .co-so-item h4 {
+                color: #333;
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+
+            .co-so-item .dia-chi {
+                color: #888;
+                font-size: 13px;
+                margin-bottom: 5px;
+            }
+
+            .co-so-item .danh-gia {
+                color: #ffa500;
+                font-size: 14px;
+                font-weight: 600;
+            }
+
+        @media (max-width: 992px) {
+            .layout-tim-kiem {
+                grid-template-columns: 1fr;
+            }
+
+            .cot-phai {
+                position: static;
+            }
+
+            #map {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Nexus Sinh Viên</h1></div>
+            <nav class="nav">
+                <a href="index.html">Trang chủ</a>
+                <a href="tim-kiem.html">Tìm kiếm</a>
+                <a href="dang-nhap.html" id="btnDangNhap">Đăng nhập</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title" id="tieuDe">🔍 Tìm kiếm dịch vụ</h2>
+
+            <!-- Filter bar -->
+            <div class="filter-bar">
+                <input type="text" id="txtTimKiem"
+                       placeholder="Nhập từ khóa..." style="width: 280px;">
+                <select id="cboDanhMuc">
+                    <option value="">-- Tất cả danh mục --</option>
+                </select>
+                <button class="btn"
+                        style="width: auto; padding: 12px 30px; display: inline-block;"
+                        onclick="thucHienLoc()">
+                    🔍 Lọc
+                </button>
+            </div>
+
+            <!-- Layout 2 cột -->
+            <div class="layout-tim-kiem">
+                <div class="cot-trai">
+                    <p style="margin-bottom: 15px; color: #666;" id="soKetQua"></p>
+                    <div id="ketQuaGrid">
+                        <p class="loading">Đang tải...</p>
+                    </div>
+                </div>
+                <div class="cot-phai">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container"><p>© 2026 Nexus Sinh Viên</p></div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let maDanhMucHienTai = null;
+        let tuKhoaHienTai = null;
+        let map = null;
+        let markers = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            capNhatNavbar();
+
+            // Đọc tham số URL
+            const params = new URLSearchParams(window.location.search);
+            maDanhMucHienTai = params.get('danh-muc');
+            tuKhoaHienTai = params.get('q');
+
+            if (tuKhoaHienTai) {
+                document.getElementById('txtTimKiem').value = tuKhoaHienTai;
+                document.getElementById('tieuDe').textContent = `🔍 Kết quả cho: "${tuKhoaHienTai}"`;
+            }
+
+            // Khởi tạo bản đồ
+            khoiTaoBanDo();
+
+            // Tải danh mục
+            await taiDanhMuc();
+
+            // Chọn danh mục nếu có trong URL
+            if (maDanhMucHienTai) {
+                document.getElementById('cboDanhMuc').value = maDanhMucHienTai;
+            }
+
+            // Tải kết quả
+            await taiKetQua();
+
+            // Enter để tìm
+            document.getElementById('txtTimKiem').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') thucHienLoc();
+            });
+        });
+
+        // ===== KHỞI TẠO BẢN ĐỒ =====
+        function khoiTaoBanDo() {
+            // Tọa độ trung tâm Hà Nội
+            map = L.map('map').setView([21.0285, 105.8542], 11);
+            // Tile server ESRI World Street Map (miễn phí, không cần key)
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles © Esri',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Fix lỗi bản đồ bị vỡ khi load
+            setTimeout(() => map.invalidateSize(), 300);
+        }
+
+        // ===== TẢI DANH MỤC =====
+        async function taiDanhMuc() {
+            const ds = await API.layDanhMuc();
+            const cbo = document.getElementById('cboDanhMuc');
+            if (!ds || ds.error) return;
+
+            ds.forEach(dm => {
+                const opt = document.createElement('option');
+                opt.value = dm.maDanhMuc;
+                opt.textContent = `${dm.bieuTuong || ''} ${dm.tenDanhMuc}`;
+                cbo.appendChild(opt);
+            });
+        }
+
+        // ===== TẢI KẾT QUẢ =====
+        async function taiKetQua() {
+            const grid = document.getElementById('ketQuaGrid');
+            const soKetQua = document.getElementById('soKetQua');
+
+            grid.innerHTML = '<p class="loading">Đang tải...</p>';
+            soKetQua.textContent = '';
+
+            // Xóa markers cũ
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            const ds = await API.layDanhSachCoSo(maDanhMucHienTai, tuKhoaHienTai);
+
+            if (!ds || ds.error || ds.length === 0) {
+                grid.innerHTML = `
+                        <p style="color: #888; text-align: center; padding: 40px;">
+                            😔 Không tìm thấy kết quả nào
+                        </p>
+                    `;
+                soKetQua.textContent = '0 kết quả';
+                return;
+            }
+
+            soKetQua.textContent = `Tìm thấy ${ds.length} cơ sở`;
+
+            // Hiển thị danh sách
+            grid.innerHTML = ds.map(cs => `
+                    <div class="co-so-item" onclick="xemChiTiet(${cs.maCoSo})">
+                        <div class="icon-box">🏪</div>
+                        <div class="info">
+                            <h4>${cs.tenCoSo}</h4>
+                            <div class="dia-chi">📍 ${cs.diaChi || 'Chưa có địa chỉ'}</div>
+                            <div class="danh-gia">⭐ ${cs.danhGiaTrungBinh?.toFixed(1) || '0.0'}</div>
+                        </div>
+                    </div>
+                `).join('');
+
+            // Thêm markers lên bản đồ
+            const bounds = [];
+            ds.forEach(cs => {
+                if (cs.viDo && cs.kinhDo) {
+                    const marker = L.marker([cs.viDo, cs.kinhDo]).addTo(map)
+                        .bindPopup(`
+                                <div style="min-width: 200px;">
+                                    <b style="color: #667eea; font-size: 15px;">
+                                        ${cs.tenCoSo}
+                                    </b><br>
+                                    <span style="color: #666; font-size: 13px;">
+                                        📍 ${cs.diaChi || ''}
+                                    </span><br>
+                                    <span style="color: #ffa500; font-weight: 600;">
+                                        ⭐ ${cs.danhGiaTrungBinh?.toFixed(1) || '0.0'}
+                                    </span><br>
+                                    <a href="chi-tiet.html?id=${cs.maCoSo}"
+                                       style="color: #667eea; font-weight: 600;
+                                              display: inline-block; margin-top: 8px;">
+                                        Xem chi tiết →
+                                    </a>
+                                </div>
+                            `);
+                    markers.push(marker);
+                    bounds.push([cs.viDo, cs.kinhDo]);
+                }
+            });
+
+            // Tự động zoom để hiển thị tất cả markers
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+
+        // ===== XỬ LÝ SỰ KIỆN =====
+        function thucHienLoc() {
+            const tk = document.getElementById('txtTimKiem').value.trim();
+            const ma = document.getElementById('cboDanhMuc').value;
+
+            tuKhoaHienTai = tk || null;
+            maDanhMucHienTai = ma || null;
+
+            if (tk) {
+                document.getElementById('tieuDe').textContent = `🔍 Kết quả cho: "${tk}"`;
+            } else {
+                document.getElementById('tieuDe').textContent = '🔍 Tìm kiếm dịch vụ';
+            }
+
+            taiKetQua();
+        }
+
+        function xemChiTiet(maCoSo) {
+            window.location.href = `chi-tiet.html?id=${maCoSo}`;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,421 @@
+﻿/* ============ RESET & BASE ============ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: #f5f7fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.loading {
+    text-align: center;
+    color: #888;
+    padding: 20px;
+    font-style: italic;
+}
+
+/* ============ HEADER ============ */
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.logo h1 {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.nav {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+    .nav a {
+        color: white;
+        text-decoration: none;
+        padding: 8px 15px;
+        border-radius: 8px;
+        transition: background 0.3s;
+        font-size: 15px;
+    }
+
+        .nav a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+/* ============ HERO ============ */
+.hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0 80px;
+    text-align: center;
+}
+
+    .hero h2 {
+        font-size: 32px;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+.hero-desc {
+    opacity: 0.9;
+    margin-bottom: 30px;
+    font-size: 16px;
+}
+
+.search-box {
+    display: flex;
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+    .search-box input {
+        flex: 1;
+        padding: 16px 25px;
+        border: none;
+        outline: none;
+        font-size: 16px;
+    }
+
+    .search-box button {
+        padding: 16px 30px;
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        transition: background 0.3s;
+    }
+
+        .search-box button:hover {
+            background: #ee5a5a;
+        }
+
+/* ============ SECTIONS ============ */
+.section {
+    padding: 40px 0;
+}
+
+.section-title {
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #333;
+    font-weight: 700;
+}
+
+/* ============ DANH MỤC ============ */
+.danh-muc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.danh-muc-item {
+    background: white;
+    padding: 25px 15px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border: 2px solid transparent;
+}
+
+    .danh-muc-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-color: #667eea;
+    }
+
+    .danh-muc-item .icon {
+        font-size: 42px;
+        margin-bottom: 10px;
+    }
+
+    .danh-muc-item .ten {
+        font-weight: 600;
+        color: #333;
+        font-size: 15px;
+    }
+
+/* ============ ƯU ĐÃI ============ */
+.uu-dai-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.uu-dai-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s;
+    position: relative;
+    padding: 20px 20px 20px 25px;
+}
+
+    .uu-dai-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: #ff6b6b;
+    }
+
+    .uu-dai-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .uu-dai-card h4 {
+        color: #667eea;
+        margin-bottom: 10px;
+        font-size: 18px;
+    }
+
+    .uu-dai-card p {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .uu-dai-card .giam-gia {
+        display: inline-block;
+        background: #ff6b6b;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+/* ============ CƠ SỞ ============ */
+.co-so-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.co-so-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+    .co-so-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .co-so-card .anh {
+        height: 160px;
+        background: linear-gradient(135deg, #a8b8e8, #d0a8e8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 60px;
+        color: white;
+    }
+
+    .co-so-card .noi-dung {
+        padding: 20px;
+    }
+
+    .co-so-card h4 {
+        color: #333;
+        margin-bottom: 8px;
+        font-size: 17px;
+    }
+
+    .co-so-card .dia-chi {
+        color: #888;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+
+    .co-so-card .danh-gia {
+        color: #ffa500;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+/* ============ FORM (Đăng nhập/Đăng ký) ============ */
+.form-box {
+    max-width: 450px;
+    margin: 60px auto;
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+    .form-box h2 {
+        text-align: center;
+        color: #667eea;
+        margin-bottom: 30px;
+        font-size: 26px;
+    }
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: border 0.3s;
+    }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+.btn {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+
+.alert {
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: none;
+    font-size: 14px;
+}
+
+    .alert.error {
+        background: #fed7d7;
+        color: #c53030;
+        display: block;
+    }
+
+    .alert.success {
+        background: #c6f6d5;
+        color: #2f855a;
+        display: block;
+    }
+
+.form-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+    .form-link a {
+        color: #667eea;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+/* ============ FOOTER ============ */
+.footer {
+    background: #2d3748;
+    color: white;
+    text-align: center;
+    padding: 25px 0;
+    margin-top: 40px;
+}
+
+    .footer p {
+        font-size: 14px;
+        margin: 5px 0;
+        opacity: 0.8;
+    }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+    .header-inner {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .nav {
+        justify-content: center;
+    }
+
+        .nav a {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+    .hero h2 {
+        font-size: 22px;
+    }
+
+    .search-box {
+        flex-direction: column;
+        border-radius: 12px;
+    }
+
+        .search-box input,
+        .search-box button {
+            width: 100%;
+            border-radius: 0;
+        }
+
+        .search-box button {
+            border-radius: 0 0 12px 12px;
+        }
+}

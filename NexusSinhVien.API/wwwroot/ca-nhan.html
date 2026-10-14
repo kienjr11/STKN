@@ -1,0 +1,221 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cá nhân - Nexus Sinh Viên</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .ca-nhan-box {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            color: white;
+            margin: 0 auto 20px;
+        }
+
+        .thong-tin {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+            .thong-tin .label {
+                color: #888;
+                font-weight: 600;
+            }
+
+            .thong-tin .value {
+                color: #333;
+            }
+
+        .diem-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+            .diem-box .so-diem {
+                font-size: 48px;
+                font-weight: bold;
+            }
+
+            .diem-box .label {
+                opacity: 0.9;
+                font-size: 14px;
+            }
+
+        .btn-dang-xuat {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+
+            .btn-dang-xuat:hover {
+                background: #ee5a5a;
+            }
+
+        .muc {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+            .muc h3 {
+                color: #667eea;
+                margin-bottom: 15px;
+                font-size: 18px;
+            }
+
+        .hoat-dong-item {
+            background: #f8f9ff;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+            .hoat-dong-item .diem {
+                font-weight: bold;
+                color: #38a169;
+            }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Nexus Sinh Viên</h1></div>
+            <nav class="nav">
+                <a href="index.html">Trang chủ</a>
+                <a href="tim-kiem.html">Tìm kiếm</a>
+                <a href="ca-nhan.html">Cá nhân</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="ca-nhan-box" id="hopCaNhan">
+                <p class="loading">Đang tải thông tin...</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container"><p>© 2026 Nexus Sinh Viên</p></div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.daDangNhap()) {
+                window.location.href = 'dang-nhap.html';
+                return;
+            }
+
+            const tt = await API.thongTinCaNhan();
+            const box = document.getElementById('hopCaNhan');
+
+            if (!tt || tt.error) {
+                box.innerHTML = `
+                        <p style="text-align:center; color: #c53030;">
+                            Không tải được thông tin. Vui lòng đăng nhập lại.
+                        </p>
+                        <button class="btn-dang-xuat" onclick="Auth.dangXuat()">
+                            Đăng xuất
+                        </button>
+                    `;
+                return;
+            }
+
+            let loai = '🎓 Sinh viên';
+            if (tt.loaiNguoiDung === 'quan_tri') loai = '👑 Quản trị viên';
+            else if (tt.loaiNguoiDung === 'co_so_kinh_doanh') loai = '🏪 Cơ sở kinh doanh';
+
+            box.innerHTML = `
+                    <div class="avatar">👤</div>
+                    <h2 style="text-align: center; color: #333; margin-bottom: 5px;">
+                        ${tt.hoTen}
+                    </h2>
+                    <p style="text-align: center; color: #888;">${loai}</p>
+
+                    <div class="diem-box" style="margin-top: 30px;">
+                        <div class="so-diem">${tt.diemTichLuy || 0}</div>
+                        <div class="label">Điểm tích lũy</div>
+                    </div>
+
+                    <div class="thong-tin">
+                        <div class="label">Email:</div>
+                        <div class="value">${tt.email}</div>
+
+                        <div class="label">Trạng thái:</div>
+                        <div class="value">
+                            ${tt.daXacThuc
+                    ? '<span style="color: #38a169;">✅ Đã xác thực</span>'
+                    : '<span style="color: #dd6b20;">⚠️ Chưa xác thực</span>'}
+                        </div>
+                    </div>
+
+                    <div class="muc">
+                        <h3>📜 Thông tin điểm</h3>
+                        <div id="lichSuDiem">
+                            <p class="loading">Đang tải...</p>
+                        </div>
+                    </div>
+
+                    <button class="btn-dang-xuat" onclick="dangXuat()">
+                        🚪 Đăng xuất
+                    </button>
+                `;
+
+            // Tải lịch sử điểm
+            const lichSu = await API.layLichSuDiem();
+            if (lichSu && !lichSu.error) {
+                document.getElementById('lichSuDiem').innerHTML = `
+                        <div class="hoat-dong-item">
+                            <span>💰 Tổng điểm tích lũy</span>
+                            <span class="diem">${lichSu.diemTichLuy} điểm</span>
+                        </div>
+                        <p style="color: #888; font-size: 13px; margin-top: 10px;">
+                            ${lichSu.ghiChu || ''}
+                        </p>
+                    `;
+            }
+        });
+
+        function dangXuat() {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                Auth.dangXuat();
+            }
+        }
+    </script>
+</body>
+</html>

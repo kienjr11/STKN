@@ -1,0 +1,42 @@
+## Visual Studio / .NET
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Oo]ut/
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+artifacts/
+
+## Rider / VS Code
+.idea/
+.vscode/
+
+## User secrets & config nhạy cảm
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+.env
+
+## Logs
+*.log
+logs/
+
+## OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - Nexus Sinh Viên</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Nexus Sinh Viên</h1></div>
+            <nav class="nav">
+                <a href="index.html">Trang chủ</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="form-box">
+        <h2>📝 Đăng ký tài khoản</h2>
+
+        <div id="thongBao" class="alert"></div>
+
+        <form id="formDangKy">
+            <div class="form-group">
+                <label>Email *</label>
+                <input type="email" id="email" required
+                       placeholder="sv001@st.edu.vn">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu *</label>
+                <input type="password" id="matKhau" required
+                       placeholder="Ít nhất 6 ký tự" minlength="6">
+            </div>
+            <div class="form-group">
+                <label>Họ tên *</label>
+                <input type="text" id="hoTen" required
+                       placeholder="Nguyễn Văn A">
+            </div>
+            <div class="form-group">
+                <label>Số điện thoại</label>
+                <input type="tel" id="soDienThoai"
+                       placeholder="0123456789">
+            </div>
+            <div class="form-group">
+                <label>Mã sinh viên</label>
+                <input type="text" id="maSinhVien"
+                       placeholder="SV001">
+            </div>
+            <div class="form-group">
+                <label>Trường đại học</label>
+                <input type="text" id="truongDaiHoc"
+                       placeholder="Đại học Thủ đô Hà Nội">
+            </div>
+            <button type="submit" class="btn">Đăng ký</button>
+        </form>
+
+        <p class="form-link">
+            Đã có tài khoản? <a href="dang-nhap.html">Đăng nhập</a>
+        </p>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('formDangKy').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                email: document.getElementById('email').value.trim(),
+                matKhau: document.getElementById('matKhau').value,
+                hoTen: document.getElementById('hoTen').value.trim(),
+                soDienThoai: document.getElementById('soDienThoai').value.trim() || null,
+                maSinhVien: document.getElementById('maSinhVien').value.trim() || null,
+                truongDaiHoc: document.getElementById('truongDaiHoc').value.trim() || null
+            };
+
+            const tb = document.getElementById('thongBao');
+            tb.className = 'alert';
+
+            const kq = await API.dangKy(data);
+
+            if (kq.error) {
+                tb.textContent = kq.message || 'Đăng ký thất bại';
+                tb.className = 'alert error';
+                return;
+            }
+
+            tb.textContent = '✅ Đăng ký thành công! Đang chuyển đến trang đăng nhập...';
+            tb.className = 'alert success';
+
+            setTimeout(() => {
+                window.location.href = 'dang-nhap.html';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>

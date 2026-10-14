@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Nexus Sinh Viên</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Nexus Sinh Viên</h1></div>
+            <nav class="nav">
+                <a href="index.html">Trang chủ</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="form-box">
+        <h2>🔐 Đăng nhập</h2>
+
+        <div id="thongBao" class="alert"></div>
+
+        <form id="formDangNhap">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" required
+                       placeholder="admin@nexus.local"
+                       value="admin@nexus.local">
+            </div>
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <input type="password" id="matKhau" required
+                       placeholder="Nhập mật khẩu"
+                       value="admin123">
+            </div>
+            <button type="submit" class="btn">Đăng nhập</button>
+        </form>
+
+        <p class="form-link">
+            Chưa có tài khoản? <a href="dang-ky.html">Đăng ký ngay</a>
+        </p>
+
+        <p class="form-link" style="font-size: 12px; opacity: 0.7;">
+            Demo: admin@nexus.local / admin123
+        </p>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('formDangNhap').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const matKhau = document.getElementById('matKhau').value;
+            const tb = document.getElementById('thongBao');
+
+            // Reset thông báo
+            tb.className = 'alert';
+            tb.textContent = '';
+
+            // Gọi API
+            const kq = await API.dangNhap(email, matKhau);
+
+            if (kq.error) {
+                tb.textContent = kq.message || 'Đăng nhập thất bại';
+                tb.className = 'alert error';
+                return;
+            }
+
+            // Lưu thông tin đăng nhập
+            Auth.luuDangNhap(kq.token, {
+                maNguoiDung: kq.maNguoiDung,
+                email: kq.email,
+                hoTen: kq.hoTen,
+                loaiNguoiDung: kq.loaiNguoiDung
+            });
+
+            tb.textContent = '✅ Đăng nhập thành công! Đang chuyển hướng...';
+            tb.className = 'alert success';
+
+            // Chuyển về trang chủ sau 1 giây
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

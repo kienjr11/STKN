@@ -1,0 +1,6 @@
+@NexusSinhVien.API_HostAddress = http://localhost:5167
+
+GET {{NexusSinhVien.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

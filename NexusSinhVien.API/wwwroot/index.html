@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Sinh Viên - Trang chủ</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ============ HEADER ============ -->
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo">
+                <h1>🎓 Nexus Sinh Viên</h1>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Trang chủ</a>
+                <a href="tim-kiem.html">Tìm kiếm</a>
+                <a href="uu-dai.html">Ưu đãi</a>
+                <a href="dang-nhap.html" id="btnDangNhap">Đăng nhập</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ============ HERO + SEARCH ============ -->
+    <section class="hero">
+        <div class="container">
+            <h2>Tìm dịch vụ quanh trường bạn</h2>
+            <p class="hero-desc">Kết nối sinh viên với hệ sinh thái dịch vụ ngoại thành Hà Nội</p>
+            <div class="search-box">
+                <input type="text" id="txtTimKiem"
+                       placeholder="Tìm quán ăn, nhà trọ, dịch vụ...">
+                <button onclick="timKiem()">🔍 Tìm</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ DANH MỤC ============ -->
+    <section class="section">
+        <div class="container">
+            <h3 class="section-title">📂 Danh mục dịch vụ</h3>
+            <div class="danh-muc-grid" id="danhMucGrid">
+                <p class="loading">Đang tải...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ ƯU ĐÃI ============ -->
+    <section class="section">
+        <div class="container">
+            <h3 class="section-title">🔥 Ưu đãi hot</h3>
+            <div class="uu-dai-grid" id="uuDaiGrid">
+                <p class="loading">Đang tải...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CƠ SỞ ============ -->
+    <section class="section">
+        <div class="container">
+            <h3 class="section-title">⭐ Cơ sở nổi bật</h3>
+            <div class="co-so-grid" id="coSoGrid">
+                <p class="loading">Đang tải...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2026 Nexus Sinh Viên - Dự án đồ án tốt nghiệp</p>
+            <p>Trường Đại học Thủ đô Hà Nội</p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/trang-chu.js"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Sinh Viên - Trang chủ</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ============ HEADER ============ -->
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo">
+                <h1>🎓 Nexus Sinh Viên</h1>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Trang chủ</a>
+                <a href="tim-kiem.html">Tìm kiếm</a>
+                <a href="uu-dai.html">Ưu đãi</a>
+                <a href="dang-nhap.html" id="btnDangNhap">Đăng nhập</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ============ HERO + SEARCH ============ -->
+    <section class="hero">
+        <div class="container">
+            <h2>Tìm dịch vụ quanh trường bạn</h2>
+            <p class="hero-desc">Kết nối sinh viên với hệ sinh thái dịch vụ ngoại thành Hà Nội</p>
+            <div class="search-box">
+                <input type="text" id="txtTimKiem"
+                       placeholder="Tìm quán ăn, nhà trọ, dịch vụ...">
+                <button onclick="timKiem()">🔍 Tìm</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ DANH MỤC ============ -->
+    <section class="section">
+        <div class="container">
+            <h3 class="section-title">📂 Danh mục dịch vụ</h3>
+            <div class="danh-muc-grid" id="danhMucGrid">
+                <p class="loading">Đang tải...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ ƯU ĐÃI ============ -->
+    <section class="section">
+        <div class="container">
+            <h3 class="section-title">🔥 Ưu đãi hot</h3>
+            <div class="uu-dai-grid" id="uuDaiGrid">
+                <p class="loading">Đang tải...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CƠ SỞ ============ -->
+    <section class="section">
+        <div class="container">
+            <h3 class="section-title">⭐ Cơ sở nổi bật</h3>
+            <div class="co-so-grid" id="coSoGrid">
+                <p class="loading">Đang tải...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2026 Nexus Sinh Viên - Dự án đồ án tốt nghiệp</p>
+            <p>Trường Đại học Thủ đô Hà Nội</p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/trang-chu.js"></script>
+</body>
+</html>
