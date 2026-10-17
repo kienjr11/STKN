@@ -1,5 +1,5 @@
 # Sử dụng image SDK để build dự án
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
 # 1. Copy file .sln và .csproj vào đúng thư mục con của nó
@@ -16,7 +16,7 @@ COPY . ./
 RUN dotnet publish -c Release -o out NexusSinhVien.API/NexusSinhVien.API.csproj
 
 # 4. Sử dụng image runtime để chạy ứng dụng
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out ./
 
