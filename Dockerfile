@@ -2,15 +2,20 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# Copy file csproj và restore các gói NuGet
-COPY *.csproj ./
+# 1. Copy file .sln và .csproj vào đúng thư mục con của nó
+COPY *.sln ./
+COPY NexusSinhVien.API/*.csproj ./NexusSinhVien.API/
+
+# 2. Di chuyển vào thư mục chứa project và restore
+WORKDIR /app/NexusSinhVien.API
 RUN dotnet restore
 
-# Copy toàn bộ source code và build
+# 3. Copy toàn bộ source code và build
+WORKDIR /app
 COPY . ./
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o out NexusSinhVien.API/NexusSinhVien.API.csproj
 
-# Sử dụng image runtime để chạy ứng dụng
+# 4. Sử dụng image runtime để chạy ứng dụng
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out ./
@@ -19,4 +24,5 @@ COPY --from=build /app/out ./
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
+# Thay 'NexusSinhVien.API.dll' bằng tên file .dll thực tế của bạn
 ENTRYPOINT ["dotnet", "NexusSinhVien.API.dll"]
