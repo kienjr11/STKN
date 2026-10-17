@@ -10,10 +10,12 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. ĐĂNG KÝ DỊCH VỤ
 // ============================================================
 
-// DbContext
+// ✅ CẬP NHẬT: Thêm cấu hình SplitQuery để tối ưu hiệu năng
 builder.Services.AddDbContext<NexusDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptions => sqlServerOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+    ));
 
 // JWT
 var jwtKey = builder.Configuration["Jwt:SecretKey"];
@@ -45,7 +47,12 @@ builder.Services.AddCors(options =>
 });
 
 // Controllers
-builder.Services.AddControllers();
+// ✅ SỬA LẠI: Thêm AddJsonOptions để tự động chuyển PascalCase (C#) sang camelCase (JS)
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();

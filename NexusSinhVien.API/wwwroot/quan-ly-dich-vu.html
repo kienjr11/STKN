@@ -1,0 +1,566 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý dịch vụ - Nexus Sinh Viên</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .dich-vu-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+            .dich-vu-table table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .dich-vu-table th {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 15px;
+                text-align: left;
+                font-weight: 600;
+            }
+
+            .dich-vu-table td {
+                padding: 15px;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .dich-vu-table tr:hover {
+                background: #f8f9ff;
+            }
+
+            .dich-vu-table .gia {
+                color: #ff6b6b;
+                font-weight: bold;
+            }
+
+        .btn-sm {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            transition: transform 0.2s;
+        }
+
+            .btn-sm:hover {
+                transform: translateY(-2px);
+            }
+
+        .btn-primary {
+            background: #667eea;
+        }
+
+        .btn-success {
+            background: #38a169;
+        }
+
+        .btn-warning {
+            background: #dd6b20;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+            .modal-overlay.active {
+                display: flex;
+            }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .modal-header h3 {
+                color: #667eea;
+                font-size: 20px;
+            }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #888;
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                color: #333;
+                font-size: 14px;
+            }
+
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                width: 100%;
+                padding: 12px 15px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 15px;
+                font-family: inherit;
+            }
+
+                .form-group input:focus,
+                .form-group textarea:focus,
+                .form-group select:focus {
+                    outline: none;
+                    border-color: #667eea;
+                }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #888;
+        }
+
+            .empty-state .icon {
+                font-size: 80px;
+                margin-bottom: 20px;
+            }
+
+        .co-so-selector {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+            .co-so-selector label {
+                font-weight: 600;
+                color: #333;
+            }
+
+            .co-so-selector select {
+                padding: 10px 15px;
+                border-radius: 10px;
+                border: 2px solid #e2e8f0;
+                font-size: 15px;
+                min-width: 250px;
+            }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Nexus Sinh Viên</h1></div>
+            <nav class="nav" id="mainNav">
+                <!-- Menu render động bằng JS -->
+            </nav>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="section-title" style="margin:0;">🍽️ Quản lý dịch vụ</h2>
+                <button class="btn-sm btn-success" style="padding: 12px 20px;"
+                        onclick="moModalThem()">
+                    ➕ Thêm dịch vụ
+                </button>
+            </div>
+
+            <!-- Chọn cơ sở -->
+            <div class="co-so-selector">
+                <label>Chọn cơ sở:</label>
+                <select id="cboCoSo" onchange="taiDichVu()">
+                    <option value="">-- Đang tải... --</option>
+                </select>
+            </div>
+
+            <!-- Danh sách dịch vụ -->
+            <div id="danhSachDichVu">
+                <p class="loading">Đang tải...</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container"><p>© 2026 Nexus Sinh Viên</p></div>
+    </footer>
+
+    <!-- MODAL THÊM/SỬA DỊCH VỤ -->
+    <div class="modal-overlay" id="modalDichVu">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Thêm dịch vụ mới</h3>
+                <button class="modal-close" onclick="dongModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="maDichVu">
+
+                <div class="form-group">
+                    <label>Tên dịch vụ *</label>
+                    <input type="text" id="tenDichVu" required
+                           placeholder="VD: Cơm rang dưa bò">
+                </div>
+
+                <div class="form-group">
+                    <label>Mô tả</label>
+                    <textarea id="moTaDichVu" rows="3"
+                              placeholder="Mô tả chi tiết về dịch vụ..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Giá (VNĐ) *</label>
+                    <input type="number" id="giaDichVu" required
+                           placeholder="VD: 35000" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label>Đơn vị giá</label>
+                    <input type="text" id="donViGia"
+                           placeholder="VD: đ/phần, đ/tô, đ/tờ">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sm btn-danger" onclick="dongModal()">Hủy</button>
+                <button class="btn-sm btn-success" onclick="luuDichVu()">
+                    💾 Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        let danhSachCoSo = [];
+        let maCoSoHienTai = null;
+
+        // ✅ THÊM BIẾN NÀY: Lưu danh sách dịch vụ hiện tại để tìm kiếm khi Sửa
+        let danhSachDichVuHienTai = [];
+
+        // =====================================================
+        // MENU ĐỘNG THEO VAI TRÒ
+        // =====================================================
+        function capNhatMenuTheoVaiTro() {
+            const user = Auth.layNguoiDung();
+            const nav = document.getElementById('mainNav');
+            if (!nav) return;
+
+            let menuHtml = `
+                        <a href="index.html">Trang chủ</a>
+                        <a href="tim-kiem.html">Tìm kiếm</a>
+                        <a href="uu-dai.html">Ưu đãi</a>
+                    `;
+
+            if (user) {
+                const loai = user.loaiNguoiDung;
+
+                // Đối tác (CSKD + Admin) thấy "Quản lý cơ sở"
+                if (loai === 'co_so_kinh_doanh' || loai === 'quan_tri') {
+                    menuHtml += `<a href="quan-ly-co-so.html">🏪 Quản lý</a>`;
+                }
+
+                // Chỉ Admin thấy "Quản trị" + "Thống kê"
+                if (loai === 'quan_tri') {
+                    menuHtml += `<a href="quan-tri.html">👑 Quản trị</a>`;
+                    menuHtml += `<a href="thong-ke.html">📈 Thống kê</a>`;
+                }
+
+                menuHtml += `<a href="ca-nhan.html" id="btnDangNhap">👤 ${user.hoTen}</a>`;
+            } else {
+                menuHtml += `<a href="dang-nhap.html" id="btnDangNhap">Đăng nhập</a>`;
+            }
+
+            nav.innerHTML = menuHtml;
+        }
+
+        // =====================================================
+        // KHỞI TẠO KHI LOAD TRANG
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // ✅ Dùng phương thức phân quyền mới
+            if (!Auth.yeuCauDoiTac()) return;
+
+            capNhatMenuTheoVaiTro();
+            await taiDanhSachCoSo();
+        });
+
+        // =====================================================
+        // TẢI DANH SÁCH CƠ SỞ
+        // =====================================================
+        async function taiDanhSachCoSo() {
+            const ds = await API.layCoSoCuaToi();
+            const cbo = document.getElementById('cboCoSo');
+
+            if (!ds || ds.error || ds.length === 0) {
+                cbo.innerHTML = '<option value="">Bạn chưa có cơ sở nào</option>';
+                document.getElementById('danhSachDichVu').innerHTML = `
+                            <div class="empty-state">
+                                <div class="icon">🏪</div>
+                                <p>Bạn chưa có cơ sở nào</p>
+                                <a href="dang-ky-co-so.html" class="btn-sm btn-primary"
+                                   style="display:inline-block; margin-top:15px; padding:12px 24px;">
+                                    ➕ Đăng ký cơ sở mới
+                                </a>
+                            </div>
+                        `;
+                return;
+            }
+
+            danhSachCoSo = ds;
+            cbo.innerHTML = ds.map(cs =>
+                `<option value="${cs.maCoSo}">${cs.tenCoSo}</option>`
+            ).join('');
+
+            // Đọc tham số ?co-so=ID từ URL
+            const params = new URLSearchParams(window.location.search);
+            const maCoSoTuUrl = params.get('co-so');
+
+            if (maCoSoTuUrl && ds.find(cs => cs.maCoSo == maCoSoTuUrl)) {
+                cbo.value = maCoSoTuUrl;
+                maCoSoHienTai = maCoSoTuUrl;
+            } else {
+                maCoSoHienTai = ds[0].maCoSo;
+            }
+
+            await taiDichVu();
+        }
+
+        // =====================================================
+        // TẢI DỊCH VỤ
+        // =====================================================
+        async function taiDichVu() {
+            maCoSoHienTai = document.getElementById('cboCoSo').value;
+            if (!maCoSoHienTai) return;
+
+            const box = document.getElementById('danhSachDichVu');
+            box.innerHTML = '<p class="loading">Đang tải...</p>';
+
+            const ds = await API.layDichVuTheoCoSo(maCoSoHienTai);
+
+            // ✅ GÁN DỮ LIỆU VÀO BIẾN TOÀN CỤC ĐỂ DÙNG CHO HÀM SỬA
+            danhSachDichVuHienTai = ds || [];
+
+            if (!ds || ds.error || ds.length === 0) {
+                box.innerHTML = `
+                            <div class="empty-state">
+                                <div class="icon">🍽️</div>
+                                <p>Cơ sở này chưa có dịch vụ nào</p>
+                                <button class="btn-sm btn-success"
+                                        style="margin-top:15px; padding:12px 24px;"
+                                        onclick="moModalThem()">
+                                    ➕ Thêm dịch vụ đầu tiên
+                                </button>
+                            </div>
+                        `;
+                return;
+            }
+
+            box.innerHTML = `
+                        <div class="dich-vu-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tên dịch vụ</th>
+                                        <th>Mô tả</th>
+                                        <th>Giá</th>
+                                        <th style="width:150px;">Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${ds.map(dv => `
+                                        <tr>
+                                            <td><strong>${dv.tenDichVu}</strong></td>
+                                            <td style="color:#666;">${dv.moTa || ''}</td>
+                                            <td class="gia">${formatGia(dv.gia)}${dv.donViGia ? ' / ' + dv.donViGia : ''}</td>
+                                            <td>
+                                                <!-- ✅ SỬA LẠI: Chỉ truyền ID thay vì JSON.stringify -->
+                                                <button class="btn-sm btn-warning"
+                                                        onclick="moModalSua(${dv.maDichVu})">
+                                                    ✏️
+                                                </button>
+                                                <button class="btn-sm btn-danger"
+                                                        onclick="xoaDichVu(${dv.maDichVu})">
+                                                    🗑️
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+        }
+
+        // =====================================================
+        // MODAL
+        // =====================================================
+        function moModalThem() {
+            document.getElementById('modalTitle').textContent = 'Thêm dịch vụ mới';
+            document.getElementById('maDichVu').value = '';
+            document.getElementById('tenDichVu').value = '';
+            document.getElementById('moTaDichVu').value = '';
+            document.getElementById('giaDichVu').value = '';
+            document.getElementById('donViGia').value = '';
+            document.getElementById('modalDichVu').classList.add('active');
+        }
+
+        // ✅ SỬA LẠI HÀM NÀY: Nhận maDichVu và tự tìm dữ liệu
+        function moModalSua(maDichVu) {
+            const dv = danhSachDichVuHienTai.find(x => x.maDichVu === maDichVu);
+            if (!dv) {
+                alert('Không tìm thấy thông tin dịch vụ!');
+                return;
+            }
+
+            document.getElementById('modalTitle').textContent = 'Sửa dịch vụ';
+            document.getElementById('maDichVu').value = dv.maDichVu;
+            document.getElementById('tenDichVu').value = dv.tenDichVu;
+            document.getElementById('moTaDichVu').value = dv.moTa || '';
+            document.getElementById('giaDichVu').value = dv.gia || '';
+            document.getElementById('donViGia').value = dv.donViGia || '';
+            document.getElementById('modalDichVu').classList.add('active');
+        }
+
+        function dongModal() {
+            document.getElementById('modalDichVu').classList.remove('active');
+        }
+
+        // =====================================================
+        // LƯU DỊCH VỤ
+        // =====================================================
+        async function luuDichVu() {
+            const maDichVu = document.getElementById('maDichVu').value;
+            const ten = document.getElementById('tenDichVu').value.trim();
+            const gia = document.getElementById('giaDichVu').value;
+
+            if (!ten || !gia) {
+                alert('Vui lòng nhập tên và giá dịch vụ');
+                return;
+            }
+
+            const data = {
+                maCoSo: parseInt(maCoSoHienTai),
+                tenDichVu: ten,
+                moTa: document.getElementById('moTaDichVu').value.trim() || null,
+                gia: parseFloat(gia),
+                donViGia: document.getElementById('donViGia').value.trim() || null,
+                maDanhMuc: null
+            };
+
+            let kq;
+            if (maDichVu) {
+                kq = await API.capNhatDichVu(maDichVu, data);
+            } else {
+                kq = await API.themDichVu(data);
+            }
+
+            if (kq.error) {
+                alert(kq.message || 'Lỗi khi lưu');
+                return;
+            }
+
+            alert(maDichVu ? '✅ Cập nhật thành công' : '✅ Thêm dịch vụ thành công');
+            dongModal();
+            await taiDichVu();
+        }
+
+        // =====================================================
+        // XÓA DỊCH VỤ
+        // =====================================================
+        async function xoaDichVu(maDichVu) {
+            if (!confirm('Bạn có chắc muốn xóa dịch vụ này?')) return;
+
+            const kq = await API.xoaDichVu(maDichVu);
+
+            if (kq.error) {
+                alert(kq.message || 'Lỗi khi xóa');
+                return;
+            }
+
+            alert('✅ Đã xóa dịch vụ');
+            await taiDichVu();
+        }
+
+        // Đóng modal khi click ra ngoài
+        document.getElementById('modalDichVu').addEventListener('click', (e) => {
+            if (e.target.id === 'modalDichVu') dongModal();
+        });
+    </script>
+</body>
+</html>

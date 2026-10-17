@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cá nhân - Nexus Sinh Viên</title>
+    <title>Cá nhân - Uni-Link</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .ca-nhan-box {
@@ -74,12 +74,59 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 30px;
+            transition: background 0.3s;
         }
 
             .btn-dang-xuat:hover {
                 background: #ee5a5a;
             }
+
+        .btn-action {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+            .btn-action:hover {
+                transform: translateY(-2px);
+            }
+
+        .btn-voucher {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+        }
+
+        .btn-quan-ly {
+            background: linear-gradient(135deg, #dd6b20, #c05621);
+        }
+
+        .btn-danh-gia {
+            background: linear-gradient(135deg, #3182ce, #2c5282);
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #805ad5, #6b46c1);
+        }
+
+        .btn-thong-ke {
+            background: linear-gradient(135deg, #3182ce, #2c5282);
+        }
+
+        .menu-actions {
+            display: grid;
+            gap: 10px;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid #f0f0f0;
+        }
 
         .muc {
             margin-top: 25px;
@@ -107,17 +154,74 @@
                 font-weight: bold;
                 color: #38a169;
             }
+
+        /* ✅ BOX XÁC THỰC */
+        .box-xac-thuc {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #dd6b20;
+            background: linear-gradient(135deg, #fffaf0, #fff5e6);
+        }
+
+            .box-xac-thuc.cho-duyet {
+                border-left-color: #3182ce;
+                background: linear-gradient(135deg, #ebf8ff, #e6f7ff);
+            }
+
+            .box-xac-thuc.tu-choi {
+                border-left-color: #e53e3e;
+                background: linear-gradient(135deg, #fff5f5, #fed7d7);
+            }
+
+            .box-xac-thuc .tieu-de {
+                color: #c05621;
+                font-weight: 700;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+
+            .box-xac-thuc.cho-duyet .tieu-de {
+                color: #2c5282;
+            }
+
+            .box-xac-thuc.tu-choi .tieu-de {
+                color: #c53030;
+            }
+
+            .box-xac-thuc .mo-ta {
+                color: #666;
+                font-size: 14px;
+                margin-bottom: 15px;
+                line-height: 1.5;
+            }
+
+            .box-xac-thuc .btn-xac-thuc {
+                width: 100%;
+                padding: 13px;
+                background: linear-gradient(135deg, #38a169, #2f855a);
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-weight: bold;
+                cursor: pointer;
+                font-size: 15px;
+                text-decoration: none;
+                display: block;
+                text-align: center;
+                transition: transform 0.2s;
+            }
+
+                .box-xac-thuc .btn-xac-thuc:hover {
+                    transform: translateY(-2px);
+                }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="container header-inner">
-            <div class="logo"><h1>🎓 Nexus Sinh Viên</h1></div>
-            <nav class="nav">
-                <a href="index.html">Trang chủ</a>
-                <a href="tim-kiem.html">Tìm kiếm</a>
-                <a href="ca-nhan.html">Cá nhân</a>
-            </nav>
+            <div class="logo"><h1>🎓 Uni-Link</h1></div>
+            <nav class="nav" id="mainNav"></nav>
         </div>
     </header>
 
@@ -130,16 +234,49 @@
     </section>
 
     <footer class="footer">
-        <div class="container"><p>© 2026 Nexus Sinh Viên</p></div>
+        <div class="container"><p>© 2026 Uni-Link</p></div>
     </footer>
 
     <script src="js/api.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (!Auth.daDangNhap()) {
-                window.location.href = 'dang-nhap.html';
-                return;
+        // =====================================================
+        // MENU ĐỘNG
+        // =====================================================
+        function capNhatMenuTheoVaiTro() {
+            const user = Auth.layNguoiDung();
+            const nav = document.getElementById('mainNav');
+            if (!nav) return;
+
+            let menuHtml = `
+                    <a href="index.html">Trang chủ</a>
+                    <a href="tim-kiem.html">Tìm kiếm</a>
+                    <a href="uu-dai.html">Ưu đãi</a>
+                `;
+
+            if (user) {
+                const loai = user.loaiNguoiDung;
+                if (loai === 'co_so_kinh_doanh' || loai === 'quan_tri') {
+                    menuHtml += `<a href="quan-ly-co-so.html">🏪 Quản lý</a>`;
+                }
+                if (loai === 'quan_tri') {
+                    menuHtml += `<a href="quan-tri.html">👑 Quản trị</a>`;
+                    menuHtml += `<a href="thong-ke.html">📈 Thống kê</a>`;
+                }
+                menuHtml += `<a href="ca-nhan.html" id="btnDangNhap">👤 ${user.hoTen}</a>`;
+            } else {
+                menuHtml += `<a href="dang-nhap.html" id="btnDangNhap">Đăng nhập</a>`;
             }
+
+            nav.innerHTML = menuHtml;
+        }
+
+        // =====================================================
+        // KHỞI TẠO
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.yeuCauDangNhap()) return;
+
+            capNhatMenuTheoVaiTro();
 
             const tt = await API.thongTinCaNhan();
             const box = document.getElementById('hopCaNhan');
@@ -160,6 +297,75 @@
             if (tt.loaiNguoiDung === 'quan_tri') loai = '👑 Quản trị viên';
             else if (tt.loaiNguoiDung === 'co_so_kinh_doanh') loai = '🏪 Cơ sở kinh doanh';
 
+            // =====================================================
+            // ✅ BOX XÁC THỰC MỚI (Có duyệt)
+            // =====================================================
+            let boxXacThucHtml = '';
+
+            if (tt.loaiNguoiDung === 'sinh_vien' && !tt.daXacThuc) {
+                // Gọi API kiểm tra trạng thái yêu cầu xác thực
+                const trangThai = await API.layTrangThaiXacThuc();
+
+                if (trangThai && !trangThai.error && trangThai.maYeuCau) {
+                    // Đã có yêu cầu trước đó
+                    if (trangThai.trangThai === 'cho_duyet') {
+                        boxXacThucHtml = `
+                                <div class="box-xac-thuc cho-duyet">
+                                    <div class="tieu-de">⏳ Đang chờ duyệt</div>
+                                    <div class="mo-ta">
+                                        Yêu cầu xác thực của bạn đã được gửi đi.
+                                        Admin sẽ duyệt trong vòng 24h.
+                                    </div>
+                                </div>
+                            `;
+                    } else if (trangThai.trangThai === 'tu_choi') {
+                        boxXacThucHtml = `
+                                <div class="box-xac-thuc tu-choi">
+                                    <div class="tieu-de">❌ Yêu cầu bị từ chối</div>
+                                    <div class="mo-ta">
+                                        <strong>Lý do:</strong> ${trangThai.lyDoTuChoi || 'Không có lý do cụ thể'}
+                                    </div>
+                                    <a href="gui-yeu-cau-xac-thuc.html" class="btn-xac-thuc">
+                                        📤 Gửi lại yêu cầu
+                                    </a>
+                                </div>
+                            `;
+                    }
+                } else {
+                    // Chưa có yêu cầu
+                    boxXacThucHtml = `
+                            <div class="box-xac-thuc">
+                                <div class="tieu-de">⚠️ Tài khoản chưa được xác thực</div>
+                                <div class="mo-ta">
+                                    Xác thực ngay để nhận <strong>+100 điểm</strong>
+                                    và sử dụng đầy đủ tính năng dành riêng cho sinh viên!
+                                </div>
+                                <a href="gui-yeu-cau-xac-thuc.html" class="btn-xac-thuc">
+                                    🎓 Bắt đầu xác thực
+                                </a>
+                            </div>
+                        `;
+                }
+            }
+
+            // Menu actions
+            let menuHtml = '';
+            menuHtml += `<a href="voucher.html" class="btn-action btn-voucher">🎟️ Voucher của tôi</a>`;
+
+            if (Auth.coQuyen('quan-ly-co-so')) {
+                menuHtml += `<a href="quan-ly-co-so.html" class="btn-action btn-quan-ly">🏪 Quản lý cơ sở</a>`;
+            }
+
+            menuHtml += `<a href="danh-gia-cua-toi.html" class="btn-action btn-danh-gia">⭐ Đánh giá của tôi</a>`;
+
+            if (Auth.laAdmin()) {
+                menuHtml += `<a href="quan-tri.html" class="btn-action btn-admin">👑 Trang quản trị</a>`;
+                menuHtml += `<a href="thong-ke.html" class="btn-action btn-thong-ke">📈 Thống kê</a>`;
+            }
+
+            menuHtml += `<button class="btn-dang-xuat" onclick="dangXuat()">🚪 Đăng xuất</button>`;
+
+            // Render
             box.innerHTML = `
                     <div class="avatar">👤</div>
                     <h2 style="text-align: center; color: #333; margin-bottom: 5px;">
@@ -184,6 +390,8 @@
                         </div>
                     </div>
 
+                    ${boxXacThucHtml}
+
                     <div class="muc">
                         <h3>📜 Thông tin điểm</h3>
                         <div id="lichSuDiem">
@@ -191,12 +399,12 @@
                         </div>
                     </div>
 
-                    <button class="btn-dang-xuat" onclick="dangXuat()">
-                        🚪 Đăng xuất
-                    </button>
+                    <div class="menu-actions">
+                        ${menuHtml}
+                    </div>
                 `;
 
-            // Tải lịch sử điểm
+            // Tải điểm
             const lichSu = await API.layLichSuDiem();
             if (lichSu && !lichSu.error) {
                 document.getElementById('lichSuDiem').innerHTML = `

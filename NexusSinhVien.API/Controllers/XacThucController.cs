@@ -44,7 +44,10 @@ namespace NexusSinhVien.API.Controllers
                 SoDienThoai = req.SoDienThoai,
                 MaSinhVien = req.MaSinhVien,
                 TruongDaiHoc = req.TruongDaiHoc,
-                LoaiNguoiDung = "sinh_vien",
+
+                // ✅ ĐÃ SỬA: Lấy từ req, nếu null mới mặc định là sinh_vien
+                LoaiNguoiDung = req.LoaiNguoiDung ?? "sinh_vien",
+
                 DaXacThuc = false,
                 DiemTichLuy = 50,
                 NgayTao = DateTime.Now,
@@ -92,6 +95,193 @@ namespace NexusSinhVien.API.Controllers
             });
         }
 
+        [HttpGet("kiem-tra-quyen")]
+        [Authorize]
+        public async Task<IActionResult> KiemTraQuyen()
+        {
+            var maStr = User.FindFirst("MaNguoiDung")?.Value;
+            if (!int.TryParse(maStr, out int ma)) return Unauthorized();
+
+            var nd = await _context.NguoiDungs.FindAsync(ma);
+            if (nd == null) return NotFound();
+
+            var quyen = new List<string>
+            {
+                "xem-trang-chu", "tim-kiem", "xem-chi-tiet", "xem-uu-dai", "xem-danh-gia"
+            };
+
+            switch (nd.LoaiNguoiDung)
+            {
+                case "sinh_vien":
+                    quyen.AddRange(new[]
+                    {
+                        "danh-gia", "tich-diem", "doi-voucher", "xem-voucher", "bao-cao"
+                    });
+                    break;
+
+                case "co_so_kinh_doanh":
+                    quyen.AddRange(new[]
+                    {
+                        "danh-gia", "tich-diem", "doi-voucher", "xem-voucher", "bao-cao",
+                        "quan-ly-co-so", "quan-ly-dich-vu", "quan-ly-uu-dai", "upload-anh", "dang-ky-co-so"
+                    });
+                    break;
+
+                case "quan_tri":
+                    quyen.AddRange(new[]
+                    {
+                        "danh-gia", "tich-diem", "doi-voucher", "xem-voucher", "bao-cao",
+                        "quan-ly-co-so", "quan-ly-dich-vu", "quan-ly-uu-dai", "upload-anh", "dang-ky-co-so",
+                        "quan-tri", "duyet-co-so", "quan-ly-nguoi-dung", "xem-thong-ke", "xem-bao-cao"
+                    });
+                    break;
+            }
+
+            return Ok(new
+            {
+                maNguoiDung = nd.MaNguoiDung,
+                email = nd.Email,
+                hoTen = nd.HoTen,
+                loaiNguoiDung = nd.LoaiNguoiDung,
+                danhSachQuyen = quyen
+            });
+        }
+
+        [HttpPost("xac-thuc-sinh-vien")]
+        [Authorize]
+        public async Task<IActionResult> XacThucSinhVien()
+        {
+            try
+            {
+                var maStr = User.FindFirst("MaNguoiDung")?.Value;
+                if (!int.TryParse(maStr, out int ma))
+                    return Unauthorized(new { message = "Chưa đăng nhập" });
+
+                var nd = await _context.NguoiDungs.FindAsync(ma);
+                if (nd == null)
+                    return NotFound(new { message = "Không tìm thấy người dùng" });
+
+                if (nd.DaXacThuc)
+                    return BadRequest(new { message = "Tài khoản đã được xác thực" });
+
+                nd.DaXacThuc = true;
+                nd.DiemTichLuy += 100;
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    message = "Xác thực sinh viên thành công! +100 điểm",
+                    diemTichLuy = nd.DiemTichLuy
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ LỖI XÁC THỰC: {ex.Message}");
+                return StatusCode(500, new
+                {
+                    message = "Có lỗi xảy ra khi xác thực",
+                    detail = ex.Message,
+                    innerDetail = ex.InnerException?.Message
+                });
+            }
+        }
+
+        [HttpPost("gui-yeu-cau-xac-thuc")]
+        [Authorize]
+        public async Task<IActionResult> GuiYeuCauXacThuc([FromBody] YeuCauXacThucRequest req)
+        {
+            try
+            {
+                var maStr = User.FindFirst("MaNguoiDung")?.Value;
+                if (!int.TryParse(maStr, out int ma))
+                    return Unauthorized(new { message = "Chưa đăng nhập" });
+
+                var nd = await _context.NguoiDungs.FindAsync(ma);
+                if (nd == null)
+                    return NotFound(new { message = "Không tìm thấy người dùng" });
+
+                if (nd.DaXacThuc)
+                    return BadRequest(new { message = "Tài khoản đã được xác thực" });
+
+                var dangCho = await _context.YeuCauXacThucs
+                    .AnyAsync(y => y.MaNguoiDung == ma && y.TrangThai == "cho_duyet");
+
+                if (dangCho)
+                    return BadRequest(new { message = "Bạn đã có yêu cầu đang chờ duyệt. Vui lòng đợi admin xử lý." });
+
+                var emailHopLe = nd.Email.Contains("@st.edu.vn")
+                              || nd.Email.Contains("@student.edu.vn")
+                              || nd.Email.Contains("@edu.vn")
+                              || nd.Email.Contains(".edu.vn");
+
+                if (!emailHopLe)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Email không hợp lệ. Vui lòng dùng email trường (có đuôi @edu.vn)"
+                    });
+                }
+
+                var yeuCau = new YeuCauXacThuc
+                {
+                    MaNguoiDung = ma,
+                    MaSinhVien = req.MaSinhVien,
+                    TruongDaiHoc = req.TruongDaiHoc,
+                    AnhTheSinhVien = req.AnhTheSinhVien,
+                    AnhCCCD = req.AnhCCCD,
+                    GhiChu = req.GhiChu,
+                    TrangThai = "cho_duyet",
+                    NgayTao = DateTime.Now
+                };
+
+                _context.YeuCauXacThucs.Add(yeuCau);
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    message = "Đã gửi yêu cầu xác thực. Vui lòng chờ admin duyệt (trong 24h).",
+                    maYeuCau = yeuCau.MaYeuCau
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ LỖI GỬI YÊU CẦU: {ex.Message}");
+                return StatusCode(500, new
+                {
+                    message = "Có lỗi xảy ra khi gửi yêu cầu",
+                    detail = ex.Message,
+                    innerDetail = ex.InnerException?.Message
+                });
+            }
+        }
+
+        [HttpGet("trang-thai-xac-thuc")]
+        [Authorize]
+        public async Task<IActionResult> TrangThaiXacThuc()
+        {
+            var maStr = User.FindFirst("MaNguoiDung")?.Value;
+            if (!int.TryParse(maStr, out int ma))
+                return Unauthorized();
+
+            var yeuCauMoiNhat = await _context.YeuCauXacThucs
+                .Where(y => y.MaNguoiDung == ma)
+                .OrderByDescending(y => y.NgayTao)
+                .Select(y => new
+                {
+                    y.MaYeuCau,
+                    y.MaSinhVien,
+                    y.TruongDaiHoc,
+                    y.TrangThai,
+                    y.LyDoTuChoi,
+                    y.NgayTao,
+                    y.NgayDuyet
+                })
+                .FirstOrDefaultAsync();
+
+            return Ok(yeuCauMoiNhat);
+        }
+
         private string TaoJwtToken(NguoiDung nd)
         {
             var key = new SymmetricSecurityKey(
@@ -116,4 +306,12 @@ namespace NexusSinhVien.API.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
+
+    // DTO
+    public record YeuCauXacThucRequest(
+        string MaSinhVien,
+        string TruongDaiHoc,
+        string AnhTheSinhVien,
+        string AnhCCCD,
+        string? GhiChu);
 }

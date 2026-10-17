@@ -1,0 +1,333 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gửi yêu cầu xác thực - Nexus Sinh Viên</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                color: #333;
+            }
+
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 12px 15px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 15px;
+                font-family: inherit;
+            }
+
+                .form-group input:focus,
+                .form-group select:focus {
+                    outline: none;
+                    border-color: #667eea;
+                }
+
+                /* Style cho ô email readonly */
+                .form-group input[readonly] {
+                    background-color: #f7fafc;
+                    color: #4a5568;
+                    cursor: not-allowed;
+                }
+
+        .upload-box {
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+
+            .upload-box:hover {
+                border-color: #667eea;
+                background: #f8f9ff;
+            }
+
+        .upload-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+
+            .upload-preview.show {
+                display: block;
+            }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #38a169, #2f855a);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+            .btn-submit:hover {
+                transform: translateY(-2px);
+            }
+
+            .btn-submit:disabled {
+                background: #a0aec0;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+        .warning {
+            background: #fff5e6;
+            border-left: 4px solid #dd6b20;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #c05621;
+        }
+
+        .error-email {
+            background: #fed7d7;
+            border-left: 4px solid #e53e3e;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #c53030;
+            display: none; /* Ẩn mặc định */
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Nexus Sinh Viên</h1></div>
+            <nav class="nav" id="mainNav"></nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-container">
+            <h2 style="text-align:center; color:#667eea; margin-bottom:20px;">
+                🎓 Gửi yêu cầu xác thực sinh viên
+            </h2>
+
+            <div class="warning">
+                <strong>⚠️ Lưu ý:</strong>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>Email tài khoản phải là email trường (đuôi @edu.vn)</li>
+                    <li>Cần upload ảnh thẻ sinh viên (mặt trước)</li>
+                    <li>Cần upload ảnh CCCD (mặt trước)</li>
+                    <li>Admin sẽ duyệt trong vòng 24h</li>
+                </ul>
+            </div>
+
+            <!-- Cảnh báo nếu email không hợp lệ -->
+            <div id="loiEmail" class="error-email">
+                <strong>⛔ Email không hợp lệ!</strong><br>
+                Tài khoản của bạn đang dùng email không phải email trường.
+                Vui lòng tạo tài khoản mới với email có đuôi <strong>@edu.vn</strong> để được xác thực.
+            </div>
+
+            <div id="thongBao" class="alert"></div>
+
+            <form id="formYeuCau">
+                <!-- ✅ Ô hiển thị Email hiện tại (chỉ đọc) -->
+                <div class="form-group">
+                    <label>Email xác thực (Từ tài khoản đang đăng nhập)</label>
+                    <input type="email" id="emailHienTai" readonly
+                           placeholder="Đang tải email...">
+                    <p style="font-size: 13px; color: #888; margin-top: 5px;">
+                        * Hệ thống sẽ dùng email này để xác thực. Bạn không thể thay đổi tại đây.
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label>Mã sinh viên *</label>
+                    <input type="text" id="maSinhVien" required
+                           placeholder="VD: SV2024001">
+                </div>
+
+                <div class="form-group">
+                    <label>Trường đại học *</label>
+                    <input type="text" id="truongDaiHoc" required
+                           placeholder="VD: Đại học Thủ đô Hà Nội">
+                </div>
+
+                <div class="form-group">
+                    <label>Ảnh thẻ sinh viên *</label>
+                    <div class="upload-box" onclick="document.getElementById('fileThe').click()">
+                        📷 Nhấn để chọn ảnh thẻ sinh viên
+                    </div>
+                    <input type="file" id="fileThe" accept="image/*"
+                           style="display:none;" onchange="chonAnh(this, 'previewThe', 'anhThe')">
+                    <img id="previewThe" class="upload-preview" alt="Preview thẻ SV">
+                </div>
+
+                <div class="form-group">
+                    <label>Ảnh CCCD *</label>
+                    <div class="upload-box" onclick="document.getElementById('fileCCCD').click()">
+                        📷 Nhấn để chọn ảnh CCCD
+                    </div>
+                    <input type="file" id="fileCCCD" accept="image/*"
+                           style="display:none;" onchange="chonAnh(this, 'previewCCCD', 'anhCCCD')">
+                    <img id="previewCCCD" class="upload-preview" alt="Preview CCCD">
+                </div>
+
+                <div class="form-group">
+                    <label>Ghi chú (không bắt buộc)</label>
+                    <textarea id="ghiChu" rows="3"
+                              placeholder="Ghi chú thêm cho admin..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnGui">
+                    📤 Gửi yêu cầu xác thực
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container"><p>© 2026 Nexus Sinh Viên</p></div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        let anhTheUrl = '';
+        let anhCCCDUrl = '';
+        let emailNguoiDung = '';
+
+        function capNhatMenu() {
+            const user = Auth.layNguoiDung();
+            const nav = document.getElementById('mainNav');
+            if (!nav) return;
+
+            let html = `
+                    <a href="index.html">Trang chủ</a>
+                    <a href="ca-nhan.html">Cá nhân</a>
+                `;
+            if (user) {
+                html += `<a href="ca-nhan.html">👤 ${user.hoTen}</a>`;
+            }
+            nav.innerHTML = html;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.yeuCauDangNhap()) return;
+            capNhatMenu();
+
+            // Lấy thông tin user từ API để đảm bảo email mới nhất
+            const tt = await API.thongTinCaNhan();
+            if (tt && !tt.error) {
+                emailNguoiDung = tt.email;
+                document.getElementById('emailHienTai').value = emailNguoiDung;
+
+                // Kiểm tra định dạng email trường
+                const hopLe = emailNguoiDung.includes('@st.edu.vn')
+                    || emailNguoiDung.includes('@student.edu.vn')
+                    || emailNguoiDung.includes('@edu.vn')
+                    || emailNguoiDung.includes('.edu.vn');
+
+                if (!hopLe) {
+                    // Hiện cảnh báo đỏ và vô hiệu hóa nút gửi
+                    document.getElementById('loiEmail').style.display = 'block';
+                    document.getElementById('btnGui').disabled = true;
+                    document.getElementById('btnGui').textContent = '⛔ Không thể gửi (Sai email)';
+                }
+            }
+        });
+
+        // Upload ảnh
+        async function chonAnh(input, previewId, loai) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.getElementById(previewId);
+                img.src = e.target.result;
+                img.classList.add('show');
+            };
+            reader.readAsDataURL(file);
+
+            // Upload lên server
+            const kq = await API.uploadAnh(file);
+            if (kq.error) {
+                alert('Upload ảnh thất bại: ' + kq.message);
+                return;
+            }
+
+            if (loai === 'anhThe') anhTheUrl = kq.url;
+            else anhCCCDUrl = kq.url;
+
+            console.log('Đã upload:', kq.url);
+        }
+
+        // Submit form
+        document.getElementById('formYeuCau').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!anhTheUrl) {
+                alert('Vui lòng upload ảnh thẻ sinh viên');
+                return;
+            }
+            if (!anhCCCDUrl) {
+                alert('Vui lòng upload ảnh CCCD');
+                return;
+            }
+
+            // API không cần gửi email, backend tự lấy từ token
+            const data = {
+                maSinhVien: document.getElementById('maSinhVien').value.trim(),
+                truongDaiHoc: document.getElementById('truongDaiHoc').value.trim(),
+                anhTheSinhVien: anhTheUrl,
+                anhCCCD: anhCCCDUrl,
+                ghiChu: document.getElementById('ghiChu').value.trim() || null
+            };
+
+            const tb = document.getElementById('thongBao');
+            tb.className = 'alert';
+
+            const kq = await API.guiYeuCauXacThuc(data);
+
+            if (kq.error) {
+                tb.textContent = kq.message || 'Gửi thất bại';
+                tb.className = 'alert error';
+                return;
+            }
+
+            tb.textContent = '✅ ' + kq.message;
+            tb.className = 'alert success';
+
+            setTimeout(() => {
+                window.location.href = 'ca-nhan.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

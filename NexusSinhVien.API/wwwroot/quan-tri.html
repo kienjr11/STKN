@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản trị - Nexus Sinh Viên</title>
+    <title>Quản trị - Uni-Link</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .admin-layout {
@@ -49,7 +49,8 @@
             border-radius: 12px;
             padding: 30px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            min-height: 400px;
+            /* ✅ FIX: co giãn theo màn hình để đẩy footer xuống đáy */
+            min-height: calc(100vh - 220px);
         }
 
             .admin-content h2 {
@@ -104,6 +105,66 @@
             background: #f8f9ff;
         }
 
+        /* CSS cho yêu cầu xác thực */
+        .yeu-cau-card {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+            .yeu-cau-card .thong-tin {
+                flex: 1;
+                min-width: 250px;
+            }
+
+            .yeu-cau-card .anh-box {
+                display: flex;
+                gap: 10px;
+            }
+
+                .yeu-cau-card .anh-box img {
+                    width: 120px;
+                    height: 80px;
+                    object-fit: cover;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    border: 2px solid #e2e8f0;
+                    transition: transform 0.2s;
+                }
+
+                    .yeu-cau-card .anh-box img:hover {
+                        transform: scale(1.05);
+                    }
+
+            .yeu-cau-card .btn-group {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+
+        .btn-sm {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: white;
+        }
+
+        .btn-duyet {
+            background: #38a169;
+        }
+
+        .btn-tu-choi {
+            background: #e53e3e;
+        }
+
         @media (max-width: 768px) {
             .admin-layout {
                 grid-template-columns: 1fr;
@@ -114,8 +175,8 @@
 <body>
     <header class="header">
         <div class="container header-inner">
-            <div class="logo"><h1>🎓 Nexus Sinh Viên - Quản trị</h1></div>
-            <nav class="nav">
+            <div class="logo"><h1>🎓 Uni-Link - Quản trị</h1></div>
+            <nav class="nav" id="mainNav">
                 <a href="index.html">Về trang chủ</a>
                 <a href="#" onclick="dangXuat()">Đăng xuất</a>
             </nav>
@@ -129,7 +190,10 @@
                 <a href="#" class="active" onclick="chonMenu(this, 'tongQuan')">📊 Tổng quan</a>
                 <a href="#" onclick="chonMenu(this, 'nguoiDung')">👥 Người dùng</a>
                 <a href="#" onclick="chonMenu(this, 'coSo')">🏪 Cơ sở</a>
+                <a href="#" onclick="chonMenu(this, 'duyetCoSo')">⏳ Duyệt cơ sở</a>
+                <a href="#" onclick="chonMenu(this, 'duyetXacThuc')">🎓 Duyệt xác thực</a> <!-- ✅ MỚI -->
                 <a href="#" onclick="chonMenu(this, 'uuDai')">🎁 Ưu đãi</a>
+                <a href="thong-ke.html">📈 Thống kê chi tiết</a>
             </aside>
 
             <main class="admin-content" id="noiDung">
@@ -139,18 +203,22 @@
     </div>
 
     <footer class="footer" style="margin-top: 40px;">
-        <div class="container"><p>© 2026 Nexus Sinh Viên</p></div>
+        <div class="container"><p>© 2026 Uni-Link</p></div>
     </footer>
 
     <script src="js/api.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.yeuCauAdmin()) return;
+
             const user = Auth.layNguoiDung();
-            if (!user || user.loaiNguoiDung !== 'quan_tri') {
-                alert('Bạn không có quyền truy cập trang này');
-                window.location.href = 'index.html';
-                return;
+            if (user) {
+                document.getElementById('mainNav').innerHTML = `
+                            <a href="index.html">Về trang chủ</a>
+                            <a href="#" onclick="dangXuat()">👤 ${user.hoTen} | Đăng xuất</a>
+                        `;
             }
+
             await hienThiTongQuan();
         });
 
@@ -161,12 +229,18 @@
             if (muc === 'tongQuan') hienThiTongQuan();
             else if (muc === 'nguoiDung') hienThiNguoiDung();
             else if (muc === 'coSo') hienThiCoSo();
+            else if (muc === 'duyetCoSo') hienThiDuyetCoSo();
+            else if (muc === 'duyetXacThuc') hienThiDuyetXacThuc(); // ✅ MỚI
             else if (muc === 'uuDai') hienThiUuDai();
         }
 
+        // =====================================================
+        // TỔNG QUAN
+        // =====================================================
         async function hienThiTongQuan() {
             document.getElementById('noiDung').innerHTML = '<p class="loading">Đang tải...</p>';
 
+            const tk = await API.layThongKe(); // Lấy từ API thống kê để có thêm data
             const [nguoiDung, coSo, uuDai] = await Promise.all([
                 API.layDanhSachNguoiDung(),
                 API.layDanhSachCoSo(),
@@ -176,138 +250,280 @@
             const soNguoiDung = Array.isArray(nguoiDung) ? nguoiDung.length : 0;
             const soCoSo = Array.isArray(coSo) ? coSo.length : 0;
             const soUuDai = Array.isArray(uuDai) ? uuDai.length : 0;
+            const soYeuCau = tk.tongYeuCauXacThuc || 0;
 
             document.getElementById('noiDung').innerHTML = `
-                <h2>📊 Tổng quan hệ thống</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="so">${soNguoiDung}</div>
-                        <div class="label">Người dùng</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="so">${soCoSo}</div>
-                        <div class="label">Cơ sở kinh doanh</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="so">${soUuDai}</div>
-                        <div class="label">Ưu đãi</div>
-                    </div>
-                </div>
-                <p style="color: #888;">Chào mừng quản trị viên! Chọn mục bên trái để quản lý.</p>
-            `;
+                        <h2>📊 Tổng quan hệ thống</h2>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="so">${soNguoiDung}</div>
+                                <div class="label">Người dùng</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="so">${soCoSo}</div>
+                                <div class="label">Cơ sở kinh doanh</div>
+                            </div>
+                            <div class="stat-card" style="background: linear-gradient(135deg, #dd6b20, #c05621);">
+                                <div class="so">${soYeuCau}</div>
+                                <div class="label">Yêu cầu xác thực</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="so">${soUuDai}</div>
+                                <div class="label">Ưu đãi</div>
+                            </div>
+                        </div>
+                        <p style="color: #888;">Chào mừng quản trị viên! Chọn mục bên trái để quản lý.</p>
+                    `;
         }
 
+        // =====================================================
+        // NGƯỜI DÙNG
+        // =====================================================
         async function hienThiNguoiDung() {
             document.getElementById('noiDung').innerHTML = '<p class="loading">Đang tải...</p>';
             const ds = await API.layDanhSachNguoiDung();
 
             if (!ds || ds.error) {
-                document.getElementById('noiDung').innerHTML =
-                    '<p style="color: #c53030;">Không tải được danh sách</p>';
+                document.getElementById('noiDung').innerHTML = '<p style="color: #c53030;">Không tải được danh sách</p>';
                 return;
             }
 
             document.getElementById('noiDung').innerHTML = `
-                <h2>👥 Danh sách người dùng</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Email</th>
-                            <th>Họ tên</th>
-                            <th>Loại</th>
-                            <th>Điểm</th>
-                            <th>Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${ds.map(nd => `
-                            <tr>
-                                <td>${nd.maNguoiDung}</td>
-                                <td>${nd.email}</td>
-                                <td>${nd.hoTen}</td>
-                                <td>${nd.loaiNguoiDung}</td>
-                                <td>${nd.diemTichLuy || 0}</td>
-                                <td>${nd.daXacThuc ? '✅' : '⚠️'}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
+                        <h2>👥 Danh sách người dùng</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Email</th>
+                                    <th>Họ tên</th>
+                                    <th>Loại</th>
+                                    <th>Điểm</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${ds.map(nd => `
+                                    <tr>
+                                        <td>${nd.maNguoiDung}</td>
+                                        <td>${nd.email}</td>
+                                        <td>${nd.hoTen}</td>
+                                        <td>${nd.loaiNguoiDung}</td>
+                                        <td>${nd.diemTichLuy || 0}</td>
+                                        <td>${nd.daXacThuc ? '✅' : '⚠️'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
         }
 
+        // =====================================================
+        // CƠ SỞ
+        // =====================================================
         async function hienThiCoSo() {
             document.getElementById('noiDung').innerHTML = '<p class="loading">Đang tải...</p>';
             const ds = await API.layDanhSachCoSo();
 
             if (!ds || ds.error) {
-                document.getElementById('noiDung').innerHTML =
-                    '<p style="color: #c53030;">Không tải được danh sách</p>';
+                document.getElementById('noiDung').innerHTML = '<p style="color: #c53030;">Không tải được danh sách</p>';
                 return;
             }
 
             document.getElementById('noiDung').innerHTML = `
-                <h2>🏪 Danh sách cơ sở kinh doanh</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tên</th>
-                            <th>Địa chỉ</th>
-                            <th>Trạng thái</th>
-                            <th>Đánh giá</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${ds.map(cs => `
-                            <tr>
-                                <td>${cs.maCoSo}</td>
-                                <td>${cs.tenCoSo}</td>
-                                <td>${cs.diaChi || ''}</td>
-                                <td>${cs.trangThai}</td>
-                                <td>⭐ ${cs.danhGiaTrungBinh || 0}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
+                        <h2>🏪 Danh sách cơ sở kinh doanh</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tên</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Trạng thái</th>
+                                    <th>Đánh giá</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${ds.map(cs => `
+                                    <tr>
+                                        <td>${cs.maCoSo}</td>
+                                        <td>${cs.tenCoSo}</td>
+                                        <td>${cs.diaChi || ''}</td>
+                                        <td>${cs.trangThai}</td>
+                                        <td>⭐ ${cs.danhGiaTrungBinh || 0}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
         }
 
+        // =====================================================
+        // DUYỆT CƠ SỞ
+        // =====================================================
+        async function hienThiDuyetCoSo() {
+            document.getElementById('noiDung').innerHTML = '<p class="loading">Đang tải...</p>';
+            const ds = await API.layCoSoChoDuyet();
+
+            if (!ds || ds.error || ds.length === 0) {
+                document.getElementById('noiDung').innerHTML = `
+                            <h2>⏳ Duyệt cơ sở</h2>
+                            <p style="color: #888; text-align: center; padding: 40px;">✅ Không có cơ sở nào chờ duyệt</p>
+                        `;
+                return;
+            }
+
+            document.getElementById('noiDung').innerHTML = `
+                        <h2>⏳ Duyệt cơ sở (${ds.length})</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tên cơ sở</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${ds.map(cs => `
+                                    <tr>
+                                        <td>${cs.maCoSo}</td>
+                                        <td>${cs.tenCoSo}</td>
+                                        <td>${cs.diaChi || ''}</td>
+                                        <td>
+                                            <button onclick="duyetCoSo(${cs.maCoSo})" class="btn-sm btn-duyet">✅ Duyệt</button>
+                                            <button onclick="tuChoiCoSo(${cs.maCoSo})" class="btn-sm btn-tu-choi">❌ Từ chối</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+        }
+
+        async function duyetCoSo(maCoSo) {
+            if (!confirm('Duyệt cơ sở này?')) return;
+            const kq = await API.duyetCoSo(maCoSo);
+            if (kq.error) { alert(kq.message); return; }
+            alert('✅ ' + kq.message);
+            hienThiDuyetCoSo();
+        }
+
+        async function tuChoiCoSo(maCoSo) {
+            if (!confirm('Từ chối cơ sở này?')) return;
+            const kq = await API.tuChoiCoSo(maCoSo);
+            if (kq.error) { alert(kq.message); return; }
+            alert('✅ ' + kq.message);
+            hienThiDuyetCoSo();
+        }
+
+        // =====================================================
+        // ✅ MỚI: DUYỆT XÁC THỰC SINH VIÊN
+        // =====================================================
+        async function hienThiDuyetXacThuc() {
+            document.getElementById('noiDung').innerHTML = '<p class="loading">Đang tải yêu cầu...</p>';
+            const ds = await API.layYeuCauXacThuc();
+
+            if (!ds || ds.error || ds.length === 0) {
+                document.getElementById('noiDung').innerHTML = `
+                            <h2>🎓 Duyệt xác thực sinh viên</h2>
+                            <p style="color: #888; text-align: center; padding: 40px;">
+                                ✅ Không có yêu cầu xác thực nào đang chờ duyệt
+                            </p>
+                        `;
+                return;
+            }
+
+            document.getElementById('noiDung').innerHTML = `
+                        <h2>🎓 Duyệt xác thực (${ds.length} yêu cầu)</h2>
+                        ${ds.map(yc => `
+                            <div class="yeu-cau-card">
+                                <div class="thong-tin">
+                                    <p><strong>👤 Họ tên:</strong> ${yc.hoTen}</p>
+                                    <p><strong>📧 Email:</strong> ${yc.email}</p>
+                                    <p><strong>🆔 Mã SV:</strong> ${yc.maSinhVien}</p>
+                                    <p><strong>🏫 Trường:</strong> ${yc.truongDaiHoc}</p>
+                                    <p><strong>📝 Ghi chú:</strong> ${yc.ghiChu || 'Không có'}</p>
+                                </div>
+                                <div class="anh-box">
+                                    <div>
+                                        <p style="font-size:12px; text-align:center;">Thẻ SV</p>
+                                        <img src="${yc.anhTheSinhVien}" onclick="window.open(this.src)">
+                                    </div>
+                                    <div>
+                                        <p style="font-size:12px; text-align:center;">CCCD</p>
+                                        <img src="${yc.anhCCCD}" onclick="window.open(this.src)">
+                                    </div>
+                                </div>
+                                <div class="btn-group">
+                                    <button onclick="duyetXacThuc(${yc.maYeuCau})" class="btn-sm btn-duyet">✅ Duyệt</button>
+                                    <button onclick="tuChoiXacThuc(${yc.maYeuCau})" class="btn-sm btn-tu-choi">❌ Từ chối</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    `;
+        }
+
+        async function duyetXacThuc(id) {
+            if (!confirm('Duyệt yêu cầu xác thực này?\\nSinh viên sẽ nhận +100 điểm.')) return;
+
+            const kq = await API.duyetXacThuc(id);
+            if (kq.error) {
+                alert(kq.message || 'Lỗi khi duyệt');
+                return;
+            }
+            alert('✅ ' + kq.message);
+            hienThiDuyetXacThuc();
+        }
+
+        async function tuChoiXacThuc(id) {
+            const lyDo = prompt('Nhập lý do từ chối:');
+            if (!lyDo || !lyDo.trim()) return;
+
+            const kq = await API.tuChoiXacThuc(id, lyDo.trim());
+            if (kq.error) {
+                alert(kq.message || 'Lỗi khi từ chối');
+                return;
+            }
+            alert('✅ ' + kq.message);
+            hienThiDuyetXacThuc();
+        }
+
+        // =====================================================
+        // ƯU ĐÃI
+        // =====================================================
         async function hienThiUuDai() {
             document.getElementById('noiDung').innerHTML = '<p class="loading">Đang tải...</p>';
             const ds = await API.layUuDai();
 
             if (!ds || ds.error) {
-                document.getElementById('noiDung').innerHTML =
-                    '<p style="color: #c53030;">Không tải được danh sách</p>';
+                document.getElementById('noiDung').innerHTML = '<p style="color: #c53030;">Không tải được danh sách</p>';
                 return;
             }
 
             document.getElementById('noiDung').innerHTML = `
-                <h2>🎁 Danh sách ưu đãi</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tiêu đề</th>
-                            <th>Loại giảm</th>
-                            <th>Giá trị</th>
-                            <th>Trạng thái</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${ds.map(ud => `
-                            <tr>
-                                <td>${ud.maUuDai}</td>
-                                <td>${ud.tieuDe}</td>
-                                <td>${ud.loaiGiamGia}</td>
-                                <td>${ud.giaTriGiam || ''}</td>
-                                <td>${ud.trangThai}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
+                        <h2>🎁 Danh sách ưu đãi</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tiêu đề</th>
+                                    <th>Loại giảm</th>
+                                    <th>Giá trị</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${ds.map(ud => `
+                                    <tr>
+                                        <td>${ud.maUuDai}</td>
+                                        <td>${ud.tieuDe}</td>
+                                        <td>${ud.loaiGiamGia}</td>
+                                        <td>${ud.giaTriGiam || ''}</td>
+                                        <td>${ud.trangThai}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
         }
 
         function dangXuat() {

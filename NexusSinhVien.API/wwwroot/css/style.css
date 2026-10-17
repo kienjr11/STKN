@@ -1,15 +1,54 @@
-﻿/* ============ RESET & BASE ============ */
+﻿/* ============================================================
+   1. HỆ THỐNG BIẾN (DESIGN SYSTEM)
+   ============================================================ */
+:root {
+    /* Màu sắc chủ đạo */
+    --primary: #667eea;
+    --secondary: #764ba2;
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Màu trạng thái */
+    --danger: #ff6b6b;
+    --danger-hover: #ee5a5a;
+    --success: #38a169;
+    --warning: #ffa500;
+    /* Màu nền và chữ */
+    --bg-body: #f8fafc;
+    --bg-card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    /* Bóng đổ (Shadows) */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    --shadow-hover: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    /* Bo góc và Hiệu ứng */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   2. RESET & BASE
+   ============================================================ */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
-    background: #f5f7fa;
-    color: #333;
+    background-color: var(--bg-body);
+    color: var(--text-main);
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
 }
 
 .container {
@@ -20,20 +59,33 @@ body {
 
 .loading {
     text-align: center;
-    color: #888;
-    padding: 20px;
+    color: var(--text-muted);
+    padding: 30px;
     font-style: italic;
+    animation: pulse 1.5s infinite;
 }
 
-/* ============ HEADER ============ */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ============================================================
+   3. HEADER & NAVIGATION
+   ============================================================ */
 .header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-gradient);
     color: white;
     padding: 15px 0;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: var(--shadow-md);
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
 }
 
 .header-inner {
@@ -47,39 +99,44 @@ body {
 .logo h1 {
     font-size: 24px;
     font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
 .nav {
     display: flex;
-    gap: 5px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
     .nav a {
         color: white;
         text-decoration: none;
-        padding: 8px 15px;
-        border-radius: 8px;
-        transition: background 0.3s;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        transition: var(--transition);
         font-size: 15px;
+        font-weight: 500;
     }
 
         .nav a:hover {
-            background: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
         }
 
-/* ============ HERO ============ */
+/* ============================================================
+   4. HERO & SEARCH BOX
+   ============================================================ */
 .hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-gradient);
     color: white;
     padding: 60px 0 80px;
     text-align: center;
 }
 
     .hero h2 {
-        font-size: 32px;
+        font-size: 36px;
         margin-bottom: 10px;
-        font-weight: 700;
+        font-weight: 800;
     }
 
 .hero-desc {
@@ -93,10 +150,15 @@ body {
     max-width: 600px;
     margin: 0 auto;
     background: white;
-    border-radius: 50px;
+    border-radius: var(--radius-full);
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition);
 }
+
+    .search-box:focus-within {
+        box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+    }
 
     .search-box input {
         flex: 1;
@@ -104,36 +166,44 @@ body {
         border: none;
         outline: none;
         font-size: 16px;
+        color: var(--text-main);
     }
 
     .search-box button {
-        padding: 16px 30px;
-        background: #ff6b6b;
+        padding: 16px 32px;
+        background: var(--danger);
         color: white;
         border: none;
         cursor: pointer;
         font-size: 16px;
         font-weight: bold;
-        transition: background 0.3s;
+        transition: var(--transition);
     }
 
         .search-box button:hover {
-            background: #ee5a5a;
+            background: var(--danger-hover);
         }
 
-/* ============ SECTIONS ============ */
+/* ============================================================
+   5. SECTIONS & TITLES
+   ============================================================ */
 .section {
-    padding: 40px 0;
+    padding: 50px 0;
 }
 
 .section-title {
     font-size: 24px;
     margin-bottom: 25px;
-    color: #333;
+    color: var(--text-main);
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* ============ DANH MỤC ============ */
+/* ============================================================
+   6. DANH MỤC GRID
+   ============================================================ */
 .danh-muc-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -141,34 +211,41 @@ body {
 }
 
 .danh-muc-item {
-    background: white;
+    background: var(--bg-card);
     padding: 25px 15px;
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
     border: 2px solid transparent;
 }
 
     .danh-muc-item:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        border-color: #667eea;
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary);
     }
 
     .danh-muc-item .icon {
         font-size: 42px;
         margin-bottom: 10px;
+        transition: var(--transition);
+    }
+
+    .danh-muc-item:hover .icon {
+        transform: scale(1.1);
     }
 
     .danh-muc-item .ten {
         font-weight: 600;
-        color: #333;
+        color: var(--text-main);
         font-size: 15px;
     }
 
-/* ============ ƯU ĐÃI ============ */
+/* ============================================================
+   7. ƯU ĐÃI (VOUCHER CARDS)
+   ============================================================ */
 .uu-dai-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -176,11 +253,11 @@ body {
 }
 
 .uu-dai-card {
-    background: white;
-    border-radius: 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    transition: all 0.3s;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
     position: relative;
     padding: 20px 20px 20px 25px;
 }
@@ -192,37 +269,40 @@ body {
         left: 0;
         width: 5px;
         height: 100%;
-        background: #ff6b6b;
+        background: var(--danger);
     }
 
     .uu-dai-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        box-shadow: var(--shadow-hover);
     }
 
     .uu-dai-card h4 {
-        color: #667eea;
+        color: var(--primary);
         margin-bottom: 10px;
         font-size: 18px;
+        font-weight: 700;
     }
 
     .uu-dai-card p {
-        color: #666;
+        color: var(--text-muted);
         font-size: 14px;
         margin-bottom: 15px;
     }
 
     .uu-dai-card .giam-gia {
         display: inline-block;
-        background: #ff6b6b;
+        background: var(--danger);
         color: white;
-        padding: 5px 15px;
-        border-radius: 20px;
+        padding: 6px 16px;
+        border-radius: var(--radius-full);
         font-weight: bold;
         font-size: 13px;
     }
 
-/* ============ CƠ SỞ ============ */
+/* ============================================================
+   8. CƠ SỞ KINH DOANH (STORE CARDS)
+   ============================================================ */
 .co-so-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -230,17 +310,17 @@ body {
 }
 
 .co-so-card {
-    background: white;
-    border-radius: 12px;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    transition: all 0.3s;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
     cursor: pointer;
 }
 
     .co-so-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        box-shadow: var(--shadow-hover);
     }
 
     .co-so-card .anh {
@@ -258,39 +338,56 @@ body {
     }
 
     .co-so-card h4 {
-        color: #333;
+        color: var(--text-main);
         margin-bottom: 8px;
         font-size: 17px;
+        font-weight: 700;
     }
 
     .co-so-card .dia-chi {
-        color: #888;
+        color: var(--text-muted);
         font-size: 13px;
         margin-bottom: 10px;
     }
 
     .co-so-card .danh-gia {
-        color: #ffa500;
+        color: var(--warning);
         font-weight: 600;
         font-size: 14px;
     }
 
-/* ============ FORM (Đăng nhập/Đăng ký) ============ */
+/* ============================================================
+   9. FORM (ĐĂNG NHẬP / ĐĂNG KÝ)
+   ============================================================ */
 .form-box {
-    max-width: 450px;
+    max-width: 480px;
     margin: 60px auto;
-    background: white;
+    background: var(--bg-card);
     padding: 40px;
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    animation: fadeIn 0.5s ease-out;
 }
 
-    .form-box h2 {
-        text-align: center;
-        color: #667eea;
-        margin-bottom: 30px;
-        font-size: 26px;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-box h2 {
+    text-align: center;
+    color: var(--primary);
+    margin-bottom: 30px;
+    font-size: 26px;
+    font-weight: 800;
+}
 
 .form-group {
     margin-bottom: 20px;
@@ -300,91 +397,133 @@ body {
         display: block;
         margin-bottom: 8px;
         font-weight: 600;
-        color: #333;
+        color: var(--text-main);
         font-size: 14px;
     }
 
+    /* Style chung cho Input và Select */
     .form-group input,
-    .form-group select {
+    .form-group select,
+    .form-group textarea {
         width: 100%;
-        padding: 12px 15px;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
+        padding: 14px 16px;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
         font-size: 15px;
-        transition: border 0.3s;
+        font-family: inherit;
+        background-color: #fafafa;
+        transition: var(--transition);
     }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary);
+            background-color: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
         }
 
+/* Nút Submit */
 .btn {
     width: 100%;
-    padding: 13px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 14px;
+    background: var(--primary-gradient);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: var(--transition);
+    box-shadow: var(--shadow-md);
+    margin-top: 10px;
 }
 
     .btn:hover {
         transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
     }
 
+    .btn:active {
+        transform: translateY(0);
+    }
+
+/* Thông báo (Alert) */
 .alert {
-    padding: 12px 15px;
-    border-radius: 10px;
+    padding: 15px;
+    border-radius: var(--radius-md);
     margin-bottom: 20px;
     display: none;
     font-size: 14px;
+    font-weight: 500;
+    animation: slideDown 0.3s ease-out;
 }
 
-    .alert.error {
-        background: #fed7d7;
-        color: #c53030;
-        display: block;
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
     }
 
-    .alert.success {
-        background: #c6f6d5;
-        color: #2f855a;
-        display: block;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
+}
+
+.alert.error {
+    background: #fed7d7;
+    color: #c53030;
+    border-left: 4px solid var(--danger);
+    display: block;
+}
+
+.alert.success {
+    background: #c6f6d5;
+    color: #276749;
+    border-left: 4px solid var(--success);
+    display: block;
+}
 
 .form-link {
     text-align: center;
     margin-top: 20px;
     font-size: 14px;
-    color: #666;
+    color: var(--text-muted);
 }
 
     .form-link a {
-        color: #667eea;
+        color: var(--primary);
         font-weight: 600;
         text-decoration: none;
+        transition: var(--transition);
     }
 
-/* ============ FOOTER ============ */
+        .form-link a:hover {
+            text-decoration: underline;
+        }
+
+/* ============================================================
+   10. FOOTER
+   ============================================================ */
 .footer {
-    background: #2d3748;
+    background: #1e293b;
     color: white;
     text-align: center;
-    padding: 25px 0;
-    margin-top: 40px;
+    padding: 30px 0;
+    margin-top: 60px;
 }
 
     .footer p {
         font-size: 14px;
         margin: 5px 0;
-        opacity: 0.8;
+        opacity: 0.7;
     }
 
-/* ============ RESPONSIVE ============ */
+/* ============================================================
+   11. RESPONSIVE (MOBILE)
+   ============================================================ */
 @media (max-width: 768px) {
     .header-inner {
         flex-direction: column;
@@ -401,12 +540,12 @@ body {
         }
 
     .hero h2 {
-        font-size: 22px;
+        font-size: 24px;
     }
 
     .search-box {
         flex-direction: column;
-        border-radius: 12px;
+        border-radius: var(--radius-md);
     }
 
         .search-box input,
@@ -415,7 +554,16 @@ body {
             border-radius: 0;
         }
 
-        .search-box button {
-            border-radius: 0 0 12px 12px;
+        .search-box input {
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
         }
+
+        .search-box button {
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+    .form-box {
+        margin: 30px 15px;
+        padding: 25px;
+    }
 }

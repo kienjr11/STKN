@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đánh giá của tôi - Nexus Sinh Viên</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .danh-gia-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-left: 4px solid #ffa500;
+        }
+
+            .danh-gia-card .info {
+                flex: 1;
+                min-width: 250px;
+            }
+
+            .danh-gia-card .ten-co-so {
+                color: #667eea;
+                font-weight: 600;
+                font-size: 17px;
+                margin-bottom: 8px;
+                cursor: pointer;
+            }
+
+            .danh-gia-card .sao {
+                color: #ffa500;
+                font-size: 20px;
+                margin-bottom: 8px;
+            }
+
+            .danh-gia-card .binh-luan {
+                color: #555;
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+
+            .danh-gia-card .ngay {
+                color: #888;
+                font-size: 13px;
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #888;
+        }
+
+            .empty-state .icon {
+                font-size: 80px;
+                margin-bottom: 20px;
+            }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Nexus Sinh Viên</h1></div>
+            <nav class="nav">
+                <a href="index.html">Trang chủ</a>
+                <a href="tim-kiem.html">Tìm kiếm</a>
+                <a href="ca-nhan.html">Cá nhân</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">⭐ Đánh giá của tôi</h2>
+            <div id="danhSachDanhGia">
+                <p class="loading">Đang tải...</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container"><p>© 2026 Nexus Sinh Viên</p></div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            capNhatNavbar();
+
+            if (!Auth.daDangNhap()) {
+                window.location.href = 'dang-nhap.html';
+                return;
+            }
+
+            const ds = await goiAPI('/danh-gia/cua-toi');
+            const box = document.getElementById('danhSachDanhGia');
+
+            if (!ds || ds.error || ds.length === 0) {
+                box.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">⭐</div>
+                        <p>Bạn chưa có đánh giá nào</p>
+                        <a href="tim-kiem.html" class="btn"
+                           style="display: inline-block; margin-top: 15px; padding: 12px 24px; width: auto; text-decoration: none;">
+                            🔍 Tìm cơ sở để đánh giá
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            box.innerHTML = ds.map(dg => `
+                <div class="danh-gia-card">
+                    <div class="info">
+                        <div class="ten-co-so" onclick="xemCoSo(${dg.maCoSo})">
+                            🏪 ${dg.tenCoSo}
+                        </div>
+                        <div class="sao">
+                            ${'★'.repeat(dg.diemDanhGia)}${'☆'.repeat(5 - dg.diemDanhGia)}
+                            <span style="color: #333; font-size: 14px; margin-left: 8px;">
+                                ${dg.diemDanhGia}/5
+                            </span>
+                        </div>
+                        <div class="binh-luan">${dg.binhLuan || '(Không có bình luận)'}</div>
+                        <div class="ngay">📅 ${new Date(dg.ngayDanhGia).toLocaleDateString('vi-VN')}</div>
+                    </div>
+                    <div>
+                        <a href="chi-tiet.html?id=${dg.maCoSo}"
+                           class="btn-sm btn-primary"
+                           style="padding: 8px 16px; text-decoration: none; border-radius: 8px; color: white; background: #667eea; font-size: 14px;">
+                            Xem cơ sở →
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        });
+
+        function xemCoSo(maCoSo) {
+            window.location.href = `chi-tiet.html?id=${maCoSo}`;
+        }
+    </script>
+</body>
+</html>

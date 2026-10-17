@@ -1,0 +1,182 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký cơ sở - Nexus Sinh Viên</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .form-box-full {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-hint {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Nexus Sinh Viên</h1></div>
+            <nav class="nav">
+                <a href="index.html">Trang chủ</a>
+                <a href="ca-nhan.html">Cá nhân</a>
+                <a href="#" onclick="Auth.dangXuat()">Đăng xuất</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="form-box-full">
+        <h2 style="text-align:center; color:#667eea; margin-bottom:10px;">
+            🏪 Đăng ký cơ sở kinh doanh
+        </h2>
+        <p style="text-align:center; color:#888; margin-bottom:30px;">
+            Điền thông tin để đưa cơ sở của bạn lên nền tảng
+        </p>
+
+        <div id="thongBao" class="alert"></div>
+
+        <form id="formDangKy">
+            <div class="form-group">
+                <label>Tên cơ sở *</label>
+                <input type="text" id="tenCoSo" required
+                       placeholder="VD: Quán Ăn Sinh Viên">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Danh mục *</label>
+                    <select id="maDanhMuc" required
+                            style="width:100%; padding:12px 15px; border:2px solid #e2e8f0; border-radius:10px; font-size:15px;">
+                        <option value="">-- Chọn danh mục --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại *</label>
+                    <input type="tel" id="soDienThoai" required
+                           placeholder="VD: 0123456789">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Địa chỉ *</label>
+                <input type="text" id="diaChi" required
+                       placeholder="VD: Hòa Lạc, Thạch Thất, Hà Nội">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Vĩ độ (Latitude)</label>
+                    <input type="number" id="viDo" step="0.00000001"
+                           placeholder="VD: 21.0058">
+                    <div class="form-hint">
+                        <a href="https://www.latlong.net/" target="_blank"
+                           style="color: #667eea;">Lấy tọa độ tại đây</a>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Kinh độ (Longitude)</label>
+                    <input type="number" id="kinhDo" step="0.00000001"
+                           placeholder="VD: 105.5253">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Giờ mở cửa</label>
+                <input type="text" id="gioMoCua"
+                       placeholder="VD: 6:00 - 22:00">
+            </div>
+
+            <div class="form-group">
+                <label>Mô tả</label>
+                <textarea id="moTa" rows="4"
+                          style="width:100%; padding:12px 15px; border:2px solid #e2e8f0; border-radius:10px; font-family:inherit; font-size:15px;"
+                          placeholder="Giới thiệu về cơ sở của bạn..."></textarea>
+            </div>
+
+            <button type="submit" class="btn" style="margin-top: 10px;">
+                📤 Gửi đăng ký
+            </button>
+
+            <p style="text-align:center; color:#888; font-size:13px; margin-top:15px;">
+                ⏳ Cơ sở sẽ được duyệt trong vòng 24h
+            </p>
+        </form>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.daDangNhap()) {
+                window.location.href = 'dang-nhap.html';
+                return;
+            }
+
+            // Tải danh mục vào select
+            const ds = await API.layDanhMuc();
+            const cbo = document.getElementById('maDanhMuc');
+            if (ds && !ds.error) {
+                ds.forEach(dm => {
+                    const opt = document.createElement('option');
+                    opt.value = dm.maDanhMuc;
+                    opt.textContent = `${dm.bieuTuong || ''} ${dm.tenDanhMuc}`;
+                    cbo.appendChild(opt);
+                });
+            }
+        });
+
+        document.getElementById('formDangKy').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                tenCoSo: document.getElementById('tenCoSo').value.trim(),
+                maDanhMuc: parseInt(document.getElementById('maDanhMuc').value),
+                soDienThoai: document.getElementById('soDienThoai').value.trim(),
+                diaChi: document.getElementById('diaChi').value.trim(),
+                viDo: parseFloat(document.getElementById('viDo').value) || null,
+                kinhDo: parseFloat(document.getElementById('kinhDo').value) || null,
+                gioMoCua: document.getElementById('gioMoCua').value.trim() || null,
+                moTa: document.getElementById('moTa').value.trim() || null
+            };
+
+            const tb = document.getElementById('thongBao');
+            tb.className = 'alert';
+
+            const kq = await API.dangKyCoSo(data);
+
+            if (kq.error) {
+                tb.textContent = kq.message || 'Đăng ký thất bại';
+                tb.className = 'alert error';
+                return;
+            }
+
+            tb.textContent = '✅ ' + kq.message;
+            tb.className = 'alert success';
+
+            setTimeout(() => {
+                window.location.href = 'quan-ly-co-so.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

@@ -23,14 +23,23 @@ namespace NexusSinhVien.API.Models.Entities
         [StringLength(50)]
         public string? DonViGia { get; set; }
 
+        // ✅ THÊM TRƯỜNG NÀY
+        public int? MaDanhMuc { get; set; }
+
+        public string? DanhSachAnh { get; set; }
+
         [StringLength(20)]
         public string TrangThai { get; set; } = "hoat_dong";
 
         public DateTime NgayTao { get; set; } = DateTime.Now;
 
-        // QUAN TRỌNG: Bỏ qua khi serialize JSON để tránh vòng lặp
+        // Quan hệ
         [JsonIgnore]
         [ForeignKey("MaCoSo")]
         public virtual CoSoKinhDoanh? CoSo { get; set; }
+
+        [JsonIgnore]
+        [ForeignKey("MaDanhMuc")]
+        public virtual DanhMuc? DanhMuc { get; set; }
     }
 }

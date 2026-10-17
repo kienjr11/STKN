@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sửa cơ sở - Nexus Sinh Viên</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .form-box-full {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .anh-preview {
+            width: 200px;
+            height: 200px;
+            border-radius: 12px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+            .upload-area:hover {
+                border-color: #667eea;
+                background: #f8f9ff;
+            }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Nexus Sinh Viên</h1></div>
+            <nav class="nav">
+                <a href="index.html">Trang chủ</a>
+                <a href="ca-nhan.html">Cá nhân</a>
+                <a href="quan-ly-co-so.html">Cơ sở</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="form-box-full">
+        <h2 style="text-align:center; color:#667eea; margin-bottom:10px;">
+            ✏️ Sửa thông tin cơ sở
+        </h2>
+        <p style="text-align:center; color:#888; margin-bottom:30px;">
+            Cập nhật thông tin mới nhất cho cơ sở của bạn
+        </p>
+
+        <div id="thongBao" class="alert"></div>
+
+        <form id="formSua">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div class="anh-preview" id="anhPreview">🏪</div>
+                <input type="file" id="fileAnh" accept="image/*"
+                       style="display: none;" onchange="chonAnh(this)">
+                <div class="upload-area" onclick="document.getElementById('fileAnh').click()">
+                    📷 Nhấn để chọn ảnh cơ sở
+                    <div style="font-size: 12px; color: #888; margin-top: 5px;">
+                        JPG, PNG, GIF, WEBP - Tối đa 5MB
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tên cơ sở *</label>
+                <input type="text" id="tenCoSo" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Danh mục *</label>
+                    <select id="maDanhMuc" required
+                            style="width:100%; padding:12px 15px; border:2px solid #e2e8f0; border-radius:10px; font-size:15px;">
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại *</label>
+                    <input type="tel" id="soDienThoai" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Địa chỉ *</label>
+                <input type="text" id="diaChi" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Vĩ độ (Latitude)</label>
+                    <input type="number" id="viDo" step="0.00000001">
+                </div>
+                <div class="form-group">
+                    <label>Kinh độ (Longitude)</label>
+                    <input type="number" id="kinhDo" step="0.00000001">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Giờ mở cửa</label>
+                <input type="text" id="gioMoCua">
+            </div>
+
+            <div class="form-group">
+                <label>Mô tả</label>
+                <textarea id="moTa" rows="4"
+                          style="width:100%; padding:12px 15px; border:2px solid #e2e8f0; border-radius:10px; font-family:inherit; font-size:15px;"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                <a href="quan-ly-co-so.html" class="btn"
+                   style="text-align: center; text-decoration: none; background: #e2e8f0; color: #333;">
+                    ← Quay lại
+                </a>
+                <button type="submit" class="btn">
+                    💾 Lưu thay đổi
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        let maCoSo = null;
+        let anhUrlHienTai = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.daDangNhap()) {
+                window.location.href = 'dang-nhap.html';
+                return;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            maCoSo = params.get('id');
+
+            if (!maCoSo) {
+                alert('Không tìm thấy cơ sở');
+                window.location.href = 'quan-ly-co-so.html';
+                return;
+            }
+
+            // Tải danh mục
+            const dsDM = await API.layDanhMuc();
+            const cbo = document.getElementById('maDanhMuc');
+            if (dsDM && !dsDM.error) {
+                dsDM.forEach(dm => {
+                    const opt = document.createElement('option');
+                    opt.value = dm.maDanhMuc;
+                    opt.textContent = `${dm.bieuTuong || ''} ${dm.tenDanhMuc}`;
+                    cbo.appendChild(opt);
+                });
+            }
+
+            // Tải thông tin cơ sở
+            const cs = await API.layCoSoTheoId(maCoSo);
+            if (!cs || cs.error) {
+                alert('Không tải được cơ sở');
+                return;
+            }
+
+            // Điền thông tin vào form
+            document.getElementById('tenCoSo').value = cs.tenCoSo || '';
+            document.getElementById('maDanhMuc').value = cs.maDanhMuc || '';
+            document.getElementById('soDienThoai').value = cs.soDienThoai || '';
+            document.getElementById('diaChi').value = cs.diaChi || '';
+            document.getElementById('viDo').value = cs.viDo || '';
+            document.getElementById('kinhDo').value = cs.kinhDo || '';
+            document.getElementById('gioMoCua').value = cs.gioMoCua || '';
+            document.getElementById('moTa').value = cs.moTa || '';
+
+            // Ảnh cũ
+            if (cs.danhSachAnh) {
+                anhUrlHienTai = cs.danhSachAnh;
+                const preview = document.getElementById('anhPreview');
+                preview.style.backgroundImage = `url('${cs.danhSachAnh}')`;
+                preview.textContent = '';
+            }
+        });
+
+        // Xử lý chọn ảnh
+        async function chonAnh(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Preview ngay
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById('anhPreview');
+                preview.style.backgroundImage = `url('${e.target.result}')`;
+                preview.textContent = '';
+            };
+            reader.readAsDataURL(file);
+
+            // Upload lên server
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('/api/upload/anh', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const kq = await res.json();
+                if (!res.ok) {
+                    alert(kq.message || 'Upload ảnh thất bại');
+                    return;
+                }
+
+                anhUrlHienTai = kq.url;
+                console.log('Ảnh đã upload:', anhUrlHienTai);
+
+            } catch (error) {
+                console.error('Lỗi upload:', error);
+                alert('Không upload được ảnh');
+            }
+        }
+
+        // Submit form
+        document.getElementById('formSua').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                tenCoSo: document.getElementById('tenCoSo').value.trim(),
+                maDanhMuc: parseInt(document.getElementById('maDanhMuc').value),
+                soDienThoai: document.getElementById('soDienThoai').value.trim(),
+                diaChi: document.getElementById('diaChi').value.trim(),
+                viDo: parseFloat(document.getElementById('viDo').value) || null,
+                kinhDo: parseFloat(document.getElementById('kinhDo').value) || null,
+                gioMoCua: document.getElementById('gioMoCua').value.trim() || null,
+                moTa: document.getElementById('moTa').value.trim() || null
+            };
+
+            const tb = document.getElementById('thongBao');
+            tb.className = 'alert';
+
+            const kq = await API.capNhatCoSo(maCoSo, data);
+
+            if (kq.error) {
+                tb.textContent = kq.message || 'Cập nhật thất bại';
+                tb.className = 'alert error';
+                return;
+            }
+
+            tb.textContent = '✅ Cập nhật thành công!';
+            tb.className = 'alert success';
+
+            setTimeout(() => {
+                window.location.href = 'quan-ly-co-so.html';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>

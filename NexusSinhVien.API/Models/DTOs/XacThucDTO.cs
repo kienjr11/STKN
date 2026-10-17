@@ -1,13 +1,15 @@
 ﻿namespace NexusSinhVien.API.Models.DTOs
 {
-    // DTO cho đăng ký
+    // ✅ ĐÃ CẬP NHẬT: Thêm LoaiNguoiDung
     public record DangKyRequest(
         string Email,
         string MatKhau,
         string HoTen,
         string? SoDienThoai,
         string? MaSinhVien,
-        string? TruongDaiHoc);
+        string? TruongDaiHoc,
+        string? LoaiNguoiDung
+    );
 
     // DTO cho đăng nhập
     public record DangNhapRequest(

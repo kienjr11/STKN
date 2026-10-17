@@ -50,6 +50,25 @@
             font-weight: 600;
         }
 
+        /* Nút báo cáo */
+        .btn-bao-cao {
+            background: none;
+            border: 1.5px solid #e53e3e;
+            color: #e53e3e;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+            .btn-bao-cao:hover {
+                background: #e53e3e;
+                color: white;
+            }
+
         .muc {
             margin-top: 30px;
             padding-top: 25px;
@@ -175,6 +194,133 @@
             border-radius: 12px;
             background: #e8eaf0;
         }
+
+        /* ===== MODAL BÁO CÁO ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+            .modal-overlay.active {
+                display: flex;
+            }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 100%;
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .modal-header h3 {
+                color: #e53e3e;
+                font-size: 20px;
+                margin: 0;
+            }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #888;
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+            .modal-body label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                color: #333;
+                font-size: 14px;
+            }
+
+            .modal-body select,
+            .modal-body textarea {
+                width: 100%;
+                padding: 12px 15px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                font-size: 15px;
+                font-family: inherit;
+                margin-bottom: 15px;
+            }
+
+            .modal-body textarea {
+                min-height: 100px;
+                resize: vertical;
+            }
+
+                .modal-body select:focus,
+                .modal-body textarea:focus {
+                    outline: none;
+                    border-color: #e53e3e;
+                }
+
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-modal {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-huy {
+            background: #e2e8f0;
+            color: #333;
+        }
+
+        .btn-gui {
+            background: #e53e3e;
+            color: white;
+        }
+
+            .btn-gui:hover {
+                background: #c53030;
+            }
     </style>
 </head>
 <body>
@@ -184,6 +330,7 @@
             <nav class="nav">
                 <a href="index.html">Trang chủ</a>
                 <a href="tim-kiem.html">Tìm kiếm</a>
+                <a href="uu-dai.html">Ưu đãi</a>
                 <a href="dang-nhap.html" id="btnDangNhap">Đăng nhập</a>
             </nav>
         </div>
@@ -202,12 +349,44 @@
         <div class="container"><p>© 2026 Nexus Sinh Viên</p></div>
     </footer>
 
+    <!-- ============ MODAL BÁO CÁO ============ -->
+    <div class="modal-overlay" id="modalBaoCao">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>⚠️ Báo cáo vi phạm</h3>
+                <button class="modal-close" onclick="dongModalBaoCao()">×</button>
+            </div>
+            <div class="modal-body">
+                <label>Loại vi phạm:</label>
+                <select id="loaiViPham">
+                    <option value="Thông tin sai lệch">Thông tin sai lệch (địa chỉ, SĐT)</option>
+                    <option value="Lừa đảo">Có dấu hiệu lừa đảo</option>
+                    <option value="Giá không đúng">Giá không đúng với thực tế</option>
+                    <option value="Chất lượng kém">Chất lượng dịch vụ kém</option>
+                    <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
+                    <option value="Khác">Khác</option>
+                </select>
+
+                <label>Chi tiết (không bắt buộc):</label>
+                <textarea id="chiTietBaoCao"
+                          placeholder="Mô tả chi tiết vấn đề bạn gặp phải..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal btn-huy" onclick="dongModalBaoCao()">Hủy</button>
+                <button class="btn-modal btn-gui" onclick="guiBaoCao()">
+                    📤 Gửi báo cáo
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="js/api.js"></script>
     <script>
         let diemDanhGiaChon = 0;
         let mapInstance = null;
+        let maCoSoHienTai = null;
 
         document.addEventListener('DOMContentLoaded', async () => {
             capNhatNavbar();
@@ -221,6 +400,8 @@
                 return;
             }
 
+            maCoSoHienTai = maCoSo;
+
             const cs = await API.layCoSoTheoId(maCoSo);
             const box = document.getElementById('noiDung');
 
@@ -232,91 +413,94 @@
             // Danh sách dịch vụ
             const dichVuHtml = cs.danhSachDichVu?.length > 0
                 ? cs.danhSachDichVu.map(dv => `
-                        <div class="dich-vu-item">
-                            <div>
-                                <strong>${dv.tenDichVu}</strong>
-                                <div style="color: #888; font-size: 13px;">${dv.moTa || ''}</div>
+                            <div class="dich-vu-item">
+                                <div>
+                                    <strong>${dv.tenDichVu}</strong>
+                                    <div style="color: #888; font-size: 13px;">${dv.moTa || ''}</div>
+                                </div>
+                                <span class="gia">${formatGia(dv.gia)}</span>
                             </div>
-                            <span class="gia">${formatGia(dv.gia)}</span>
-                        </div>
-                    `).join('')
+                        `).join('')
                 : '<p style="color: #888;">Chưa có dịch vụ nào</p>';
 
             // Danh sách ưu đãi
             const uuDaiHtml = cs.danhSachUuDai?.length > 0
                 ? cs.danhSachUuDai.map(ud => `
-                        <div class="uu-dai-item">
-                            <strong>🎁 ${ud.tieuDe}</strong>
-                            <div style="color: #666; font-size: 14px; margin-top: 5px;">
-                                ${ud.moTa || ''}
+                            <div class="uu-dai-item">
+                                <strong>🎁 ${ud.tieuDe}</strong>
+                                <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                                    ${ud.moTa || ''}
+                                </div>
                             </div>
-                        </div>
-                    `).join('')
+                        `).join('')
                 : '<p style="color: #888;">Chưa có ưu đãi nào</p>';
 
             box.innerHTML = `
-                    <div class="chi-tiet-box">
-                        <div class="chi-tiet-header">
-                            <div class="chi-tiet-anh">🏪</div>
-                            <div class="chi-tiet-info">
-                                <h1>${cs.tenCoSo}</h1>
-                                <p>📍 <span class="gia-tri">${cs.diaChi || 'Chưa có địa chỉ'}</span></p>
-                                <p>📞 <span class="gia-tri">${cs.soDienThoai || 'Chưa có SĐT'}</span></p>
-                                <p>🕐 <span class="gia-tri">${cs.gioMoCua || 'Chưa có giờ mở cửa'}</span></p>
-                                <p>⭐ <span class="gia-tri">${cs.danhGiaTrungBinh?.toFixed(1) || '0.0'}/5</span></p>
-                            </div>
-                        </div>
-
-                        <div class="muc">
-                            <h3>📋 Mô tả</h3>
-                            <p>${cs.moTa || 'Chưa có mô tả'}</p>
-                        </div>
-
-                        <div class="muc">
-                            <h3>🗺️ Vị trí trên bản đồ</h3>
-                            <div id="map"></div>
-                        </div>
-
-                        <div class="muc">
-                            <h3>🍽️ Dịch vụ</h3>
-                            ${dichVuHtml}
-                        </div>
-
-                        <div class="muc">
-                            <h3>🎁 Ưu đãi</h3>
-                            ${uuDaiHtml}
-                        </div>
-
-                        <div class="muc">
-                            <h3>⭐ Đánh giá</h3>
-
-                            <div id="formDanhGia" class="form-danh-gia" style="display: none;">
-                                <p style="font-weight: 600; margin-bottom: 10px;">Đánh giá của bạn:</p>
-                                <div class="star-rating" id="starRating">
-                                    <span class="star" data-value="1">★</span>
-                                    <span class="star" data-value="2">★</span>
-                                    <span class="star" data-value="3">★</span>
-                                    <span class="star" data-value="4">★</span>
-                                    <span class="star" data-value="5">★</span>
+                        <div class="chi-tiet-box">
+                            <div class="chi-tiet-header">
+                                <div class="chi-tiet-anh">🏪</div>
+                                <div class="chi-tiet-info">
+                                    <h1>${cs.tenCoSo}</h1>
+                                    <p>📍 <span class="gia-tri">${cs.diaChi || 'Chưa có địa chỉ'}</span></p>
+                                    <p>📞 <span class="gia-tri">${cs.soDienThoai || 'Chưa có SĐT'}</span></p>
+                                    <p>🕐 <span class="gia-tri">${cs.gioMoCua || 'Chưa có giờ mở cửa'}</span></p>
+                                    <p>⭐ <span class="gia-tri">${cs.danhGiaTrungBinh?.toFixed(1) || '0.0'}/5</span></p>
+                                    <button class="btn-bao-cao" onclick="moModalBaoCao(${cs.maCoSo})">
+                                        ⚠️ Báo cáo cơ sở này
+                                    </button>
                                 </div>
-                                <textarea id="txtBinhLuan" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
-                                <button class="btn" style="margin-top: 10px;" onclick="guiDanhGia(${cs.maCoSo})">
-                                    Gửi đánh giá (+10 điểm)
-                                </button>
                             </div>
 
-                            <div id="yeuCauDangNhap" class="form-danh-gia" style="display: none;">
-                                <p style="text-align: center; color: #888;">
-                                    Vui lòng <a href="dang-nhap.html" style="color: #667eea; font-weight: 600;">đăng nhập</a> để đánh giá
-                                </p>
+                            <div class="muc">
+                                <h3>📋 Mô tả</h3>
+                                <p>${cs.moTa || 'Chưa có mô tả'}</p>
                             </div>
 
-                            <div id="danhSachDanhGia">
-                                <p class="loading">Đang tải đánh giá...</p>
+                            <div class="muc">
+                                <h3>🗺️ Vị trí trên bản đồ</h3>
+                                <div id="map"></div>
+                            </div>
+
+                            <div class="muc">
+                                <h3>🍽️ Dịch vụ</h3>
+                                ${dichVuHtml}
+                            </div>
+
+                            <div class="muc">
+                                <h3>🎁 Ưu đãi</h3>
+                                ${uuDaiHtml}
+                            </div>
+
+                            <div class="muc">
+                                <h3>⭐ Đánh giá</h3>
+
+                                <div id="formDanhGia" class="form-danh-gia" style="display: none;">
+                                    <p style="font-weight: 600; margin-bottom: 10px;">Đánh giá của bạn:</p>
+                                    <div class="star-rating" id="starRating">
+                                        <span class="star" data-value="1">★</span>
+                                        <span class="star" data-value="2">★</span>
+                                        <span class="star" data-value="3">★</span>
+                                        <span class="star" data-value="4">★</span>
+                                        <span class="star" data-value="5">★</span>
+                                    </div>
+                                    <textarea id="txtBinhLuan" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                                    <button class="btn" style="margin-top: 10px;" onclick="guiDanhGia(${cs.maCoSo})">
+                                        Gửi đánh giá (+10 điểm)
+                                    </button>
+                                </div>
+
+                                <div id="yeuCauDangNhap" class="form-danh-gia" style="display: none;">
+                                    <p style="text-align: center; color: #888;">
+                                        Vui lòng <a href="dang-nhap.html" style="color: #667eea; font-weight: 600;">đăng nhập</a> để đánh giá
+                                    </p>
+                                </div>
+
+                                <div id="danhSachDanhGia">
+                                    <p class="loading">Đang tải đánh giá...</p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
 
             // Khởi tạo bản đồ
             if (cs.viDo && cs.kinhDo) {
@@ -331,7 +515,7 @@
                 }, 100);
             }
 
-            // Kiểm tra đăng nhập để hiện form
+            // Kiểm tra đăng nhập
             if (Auth.daDangNhap()) {
                 document.getElementById('formDanhGia').style.display = 'block';
             } else {
@@ -357,7 +541,6 @@
         function khoiTaoBanDo(viDo, kinhDo, tenCoSo, diaChi) {
             mapInstance = L.map('map').setView([viDo, kinhDo], 16);
 
-            // Tile server ESRI World Street Map (miễn phí, không cần key)
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles © Esri',
                 maxZoom: 19
@@ -368,7 +551,6 @@
                 .bindPopup(`<b>${tenCoSo}</b><br>${diaChi || ''}`)
                 .openPopup();
 
-            // Fix lỗi bản đồ bị vỡ khi load
             setTimeout(() => mapInstance.invalidateSize(), 300);
         }
 
@@ -383,15 +565,15 @@
             }
 
             box.innerHTML = kq.map(dg => `
-                    <div class="danh-gia-item">
-                        <div class="header">
-                            <span class="ten">👤 ${dg.tenNguoiDung}</span>
-                            <span class="ngay">${new Date(dg.ngayDanhGia).toLocaleDateString('vi-VN')}</span>
+                        <div class="danh-gia-item">
+                            <div class="header">
+                                <span class="ten">👤 ${dg.tenNguoiDung}</span>
+                                <span class="ngay">${new Date(dg.ngayDanhGia).toLocaleDateString('vi-VN')}</span>
+                            </div>
+                            <div class="sao">${'★'.repeat(dg.diemDanhGia)}${'☆'.repeat(5 - dg.diemDanhGia)}</div>
+                            <div class="binh-luan">${dg.binhLuan || '(Không có bình luận)'}</div>
                         </div>
-                        <div class="sao">${'★'.repeat(dg.diemDanhGia)}${'☆'.repeat(5 - dg.diemDanhGia)}</div>
-                        <div class="binh-luan">${dg.binhLuan || '(Không có bình luận)'}</div>
-                    </div>
-                `).join('');
+                    `).join('');
         }
 
         async function guiDanhGia(maCoSo) {
@@ -415,14 +597,728 @@
 
             alert(`✅ ${kq.message}`);
 
-            // Reset form
             diemDanhGiaChon = 0;
             document.querySelectorAll('#starRating .star').forEach(s => s.classList.remove('active'));
             document.getElementById('txtBinhLuan').value = '';
 
-            // Tải lại danh sách đánh giá
             await taiDanhGia(maCoSo);
         }
+
+        // ===== BÁO CÁO VI PHẠM =====
+        function moModalBaoCao(maCoSo) {
+            if (!Auth.daDangNhap()) {
+                alert('Vui lòng đăng nhập để báo cáo');
+                window.location.href = 'dang-nhap.html';
+                return;
+            }
+
+            document.getElementById('loaiViPham').value = 'Thông tin sai lệch';
+            document.getElementById('chiTietBaoCao').value = '';
+            document.getElementById('modalBaoCao').classList.add('active');
+        }
+
+        function dongModalBaoCao() {
+            document.getElementById('modalBaoCao').classList.remove('active');
+        }
+
+        async function guiBaoCao() {
+            const loaiViPham = document.getElementById('loaiViPham').value;
+            const chiTiet = document.getElementById('chiTietBaoCao').value.trim();
+
+            // Gộp loại vi phạm + chi tiết
+            const lyDo = chiTiet
+                ? `[${loaiViPham}] ${chiTiet}`
+                : loaiViPham;
+
+            const kq = await API.guiBaoCao({
+                loaiDoiTuong: 'co_so',
+                maDoiTuong: parseInt(maCoSoHienTai),
+                lyDo: lyDo
+            });
+
+            if (kq.error) {
+                alert(kq.message || 'Không gửi được báo cáo');
+                return;
+            }
+                < !DOCTYPE html >
+                <html lang="vi">
+                    <head>
+                        <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                <title>Chi tiết cơ sở - Nexus Sinh Viên</title>
+                                <link rel="stylesheet" href="css/style.css">
+                                    <!-- Leaflet CSS -->
+                                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                                    <style>
+                                        .chi-tiet-box {
+                                            background: white;
+                                        border-radius: 16px;
+                                        padding: 30px;
+                                        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            }
+
+                                        .chi-tiet-header {
+                                            display: flex;
+                                        gap: 25px;
+                                        margin-bottom: 30px;
+                                        flex-wrap: wrap;
+            }
+
+                                        .chi-tiet-anh {
+                                            width: 200px;
+                                        height: 200px;
+                                        background: linear-gradient(135deg, #a8b8e8, #d0a8e8);
+                                        border-radius: 16px;
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        font-size: 80px;
+                                        flex-shrink: 0;
+            }
+
+                                        .chi-tiet-info h1 {
+                                            color: #333;
+                                        margin-bottom: 15px;
+            }
+
+                                        .chi-tiet-info p {
+                                            color: #666;
+                                        margin-bottom: 10px;
+                                        font-size: 15px;
+            }
+
+                                        .chi-tiet-info .gia-tri {
+                                            color: #667eea;
+                                        font-weight: 600;
+            }
+
+                                        /* Nút báo cáo */
+                                        .btn-bao-cao {
+                                            background: none;
+                                        border: 1.5px solid #e53e3e;
+                                        color: #e53e3e;
+                                        padding: 6px 14px;
+                                        border-radius: 8px;
+                                        cursor: pointer;
+                                        font-size: 13px;
+                                        font-weight: 600;
+                                        margin-top: 10px;
+                                        transition: all 0.3s;
+            }
+
+                                        .btn-bao-cao:hover {
+                                            background: #e53e3e;
+                                        color: white;
+                }
+
+                                        .muc {
+                                            margin - top: 30px;
+                                        padding-top: 25px;
+                                        border-top: 2px solid #f0f0f0;
+            }
+
+                                        .muc h3 {
+                                            color: #667eea;
+                                        margin-bottom: 15px;
+                                        font-size: 20px;
+                }
+
+                                        .dich-vu-item {
+                                            background: #f8f9ff;
+                                        padding: 15px;
+                                        border-radius: 10px;
+                                        margin-bottom: 10px;
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;
+            }
+
+                                        .dich-vu-item .gia {
+                                            color: #ff6b6b;
+                                        font-weight: bold;
+                }
+
+                                        .uu-dai-item {
+                                            background: #fff5f5;
+                                        padding: 15px;
+                                        border-radius: 10px;
+                                        margin-bottom: 10px;
+                                        border-left: 4px solid #ff6b6b;
+            }
+
+                                        .btn-back {
+                                            display: inline-block;
+                                        margin-bottom: 20px;
+                                        color: #667eea;
+                                        text-decoration: none;
+                                        font-weight: 600;
+            }
+
+                                        /* Đánh giá */
+                                        .form-danh-gia {
+                                            background: #f8f9ff;
+                                        padding: 20px;
+                                        border-radius: 12px;
+                                        margin-top: 15px;
+            }
+
+                                        .star-rating {
+                                            display: flex;
+                                        gap: 5px;
+                                        font-size: 30px;
+                                        margin-bottom: 15px;
+                                        cursor: pointer;
+            }
+
+                                        .star-rating .star {
+                                            color: #ddd;
+                                        transition: color 0.2s;
+                }
+
+                                        .star-rating .star.active,
+                                        .star-rating .star:hover {
+                                            color: #ffa500;
+                    }
+
+                                        .form-danh-gia textarea {
+                                            width: 100%;
+                                        padding: 12px;
+                                        border: 2px solid #e2e8f0;
+                                        border-radius: 10px;
+                                        font-family: inherit;
+                                        font-size: 14px;
+                                        resize: vertical;
+                                        min-height: 80px;
+            }
+
+                                        .form-danh-gia textarea:focus {
+                                            outline: none;
+                                        border-color: #667eea;
+                }
+
+                                        .danh-gia-item {
+                                            background: #f8f9ff;
+                                        padding: 15px;
+                                        border-radius: 10px;
+                                        margin-bottom: 10px;
+            }
+
+                                        .danh-gia-item .header {
+                                            display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;
+                                        margin-bottom: 8px;
+                }
+
+                                        .danh-gia-item .ten {
+                                            font - weight: 600;
+                                        color: #333;
+                }
+
+                                        .danh-gia-item .ngay {
+                                            color: #888;
+                                        font-size: 12px;
+                }
+
+                                        .danh-gia-item .sao {
+                                            color: #ffa500;
+                                        font-size: 18px;
+                }
+
+                                        .danh-gia-item .binh-luan {
+                                            color: #555;
+                                        font-size: 14px;
+                                        margin-top: 5px;
+                }
+
+                                        #map {
+                                            height: 400px;
+                                        border-radius: 12px;
+                                        background: #e8eaf0;
+            }
+
+                                        /* ===== MODAL BÁO CÁO ===== */
+                                        .modal-overlay {
+                                            display: none;
+                                        position: fixed;
+                                        top: 0;
+                                        left: 0;
+                                        width: 100%;
+                                        height: 100%;
+                                        background: rgba(0,0,0,0.5);
+                                        z-index: 1000;
+                                        align-items: center;
+                                        justify-content: center;
+                                        padding: 20px;
+            }
+
+                                        .modal-overlay.active {
+                                            display: flex;
+                }
+
+                                        .modal {
+                                            background: white;
+                                        border-radius: 16px;
+                                        max-width: 500px;
+                                        width: 100%;
+                                        animation: modalIn 0.3s ease;
+            }
+
+                                        @keyframes modalIn {
+                                            from {
+                                            transform: scale(0.9);
+                                        opacity: 0;
+                }
+
+                                        to {
+                                            transform: scale(1);
+                                        opacity: 1;
+                }
+            }
+
+                                        .modal-header {
+                                            padding: 20px 25px;
+                                        border-bottom: 2px solid #f0f0f0;
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;
+            }
+
+                                        .modal-header h3 {
+                                            color: #e53e3e;
+                                        font-size: 20px;
+                                        margin: 0;
+                }
+
+                                        .modal-close {
+                                            background: none;
+                                        border: none;
+                                        font-size: 28px;
+                                        cursor: pointer;
+                                        color: #888;
+                                        line-height: 1;
+            }
+
+                                        .modal-body {
+                                            padding: 25px;
+            }
+
+                                        .modal-body label {
+                                            display: block;
+                                        margin-bottom: 8px;
+                                        font-weight: 600;
+                                        color: #333;
+                                        font-size: 14px;
+                }
+
+                                        .modal-body select,
+                                        .modal-body textarea {
+                                            width: 100%;
+                                        padding: 12px 15px;
+                                        border: 2px solid #e2e8f0;
+                                        border-radius: 10px;
+                                        font-size: 15px;
+                                        font-family: inherit;
+                                        margin-bottom: 15px;
+                }
+
+                                        .modal-body textarea {
+                                            min - height: 100px;
+                                        resize: vertical;
+                }
+
+                                        .modal-body select:focus,
+                                        .modal-body textarea:focus {
+                                            outline: none;
+                                        border-color: #e53e3e;
+                    }
+
+                                        .modal-footer {
+                                            padding: 20px 25px;
+                                        border-top: 2px solid #f0f0f0;
+                                        display: flex;
+                                        gap: 10px;
+                                        justify-content: flex-end;
+            }
+
+                                        .btn-modal {
+                                            padding: 10px 20px;
+                                        border-radius: 10px;
+                                        border: none;
+                                        cursor: pointer;
+                                        font-size: 14px;
+                                        font-weight: 600;
+            }
+
+                                        .btn-huy {
+                                            background: #e2e8f0;
+                                        color: #333;
+            }
+
+                                        .btn-gui {
+                                            background: #e53e3e;
+                                        color: white;
+            }
+
+                                        .btn-gui:hover {
+                                            background: #c53030;
+                }
+                                    </style>
+                                </head>
+                                <body>
+                                    <header class="header">
+                                        <div class="container header-inner">
+                                            <div class="logo"><h1>🎓 Nexus Sinh Viên</h1></div>
+                                            <nav class="nav">
+                                                <a href="index.html">Trang chủ</a>
+                                                <a href="tim-kiem.html">Tìm kiếm</a>
+                                                <a href="uu-dai.html">Ưu đãi</a>
+                                                <a href="dang-nhap.html" id="btnDangNhap">Đăng nhập</a>
+                                            </nav>
+                                        </div>
+                                    </header>
+
+                                    <section class="section">
+                                        <div class="container">
+                                            <a href="tim-kiem.html" class="btn-back">← Quay lại</a>
+                                            <div id="noiDung">
+                                                <p class="loading">Đang tải thông tin...</p>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <footer class="footer">
+                                        <div class="container"><p>© 2026 Nexus Sinh Viên</p></div>
+                                    </footer>
+
+                                    <!-- ============ MODAL BÁO CÁO ============ -->
+                                    <div class="modal-overlay" id="modalBaoCao">
+                                        <div class="modal">
+                                            <div class="modal-header">
+                                                <h3>⚠️ Báo cáo vi phạm</h3>
+                                                <button class="modal-close" onclick="dongModalBaoCao()">×</button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <label>Loại vi phạm:</label>
+                                                <select id="loaiViPham">
+                                                    <option value="Thông tin sai lệch">Thông tin sai lệch (địa chỉ, SĐT)</option>
+                                                    <option value="Lừa đảo">Có dấu hiệu lừa đảo</option>
+                                                    <option value="Giá không đúng">Giá không đúng với thực tế</option>
+                                                    <option value="Chất lượng kém">Chất lượng dịch vụ kém</option>
+                                                    <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
+                                                    <option value="Khác">Khác</option>
+                                                </select>
+
+                                                <label>Chi tiết (không bắt buộc):</label>
+                                                <textarea id="chiTietBaoCao"
+                                                    placeholder="Mô tả chi tiết vấn đề bạn gặp phải..."></textarea>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn-modal btn-huy" onclick="dongModalBaoCao()">Hủy</button>
+                                                <button class="btn-modal btn-gui" onclick="guiBaoCao()">
+                                                    📤 Gửi báo cáo
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Leaflet JS -->
+                                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let diemDanhGiaChon = 0;
+        let mapInstance = null;
+        let maCoSoHienTai = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+            capNhatNavbar();
+
+        const params = new URLSearchParams(window.location.search);
+        const maCoSo = params.get('id');
+
+        if (!maCoSo) {
+            document.getElementById('noiDung').innerHTML =
+            '<p class="loading">Không tìm thấy cơ sở</p>';
+        return;
+}
+
+        maCoSoHienTai = maCoSo;
+
+        const cs = await API.layCoSoTheoId(maCoSo);
+        const box = document.getElementById('noiDung');
+
+        if (!cs || cs.error) {
+            box.innerHTML = '<p class="loading">Không tìm thấy cơ sở</p>';
+        return;
+}
+
+// Danh sách dịch vụ
+const dichVuHtml = cs.danhSachDichVu?.length > 0
+? cs.danhSachDichVu.map(dv => `
+        <div class="dich-vu-item">
+            <div>
+                <strong>${dv.tenDichVu}</strong>
+                <div style="color: #888; font-size: 13px;">${dv.moTa || ''}</div>
+            </div>
+            <span class="gia">${formatGia(dv.gia)}</span>
+        </div>
+        `).join('')
+        : '<p style="color: #888;">Chưa có dịch vụ nào</p>';
+
+// Danh sách ưu đãi
+const uuDaiHtml = cs.danhSachUuDai?.length > 0
+? cs.danhSachUuDai.map(ud => `
+        <div class="uu-dai-item">
+            <strong>🎁 ${ud.tieuDe}</strong>
+            <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                ${ud.moTa || ''}
+            </div>
+        </div>
+        `).join('')
+        : '<p style="color: #888;">Chưa có ưu đãi nào</p>';
+
+        box.innerHTML = `
+        <div class="chi-tiet-box">
+            <div class="chi-tiet-header">
+                <div class="chi-tiet-anh">🏪</div>
+                <div class="chi-tiet-info">
+                    <h1>${cs.tenCoSo}</h1>
+                    <p>📍 <span class="gia-tri">${cs.diaChi || 'Chưa có địa chỉ'}</span></p>
+                    <p>📞 <span class="gia-tri">${cs.soDienThoai || 'Chưa có SĐT'}</span></p>
+                    <p>🕐 <span class="gia-tri">${cs.gioMoCua || 'Chưa có giờ mở cửa'}</span></p>
+                    <p>⭐ <span class="gia-tri">${cs.danhGiaTrungBinh?.toFixed(1) || '0.0'}/5</span></p>
+                    <button class="btn-bao-cao" onclick="moModalBaoCao(${cs.maCoSo})">
+                        ⚠️ Báo cáo cơ sở này
+                    </button>
+                </div>
+            </div>
+
+            <div class="muc">
+                <h3>📋 Mô tả</h3>
+                <p>${cs.moTa || 'Chưa có mô tả'}</p>
+            </div>
+
+            <div class="muc">
+                <h3>🗺️ Vị trí trên bản đồ</h3>
+                <div id="map"></div>
+            </div>
+
+            <div class="muc">
+                <h3>🍽️ Dịch vụ</h3>
+                ${dichVuHtml}
+            </div>
+
+            <div class="muc">
+                <h3>🎁 Ưu đãi</h3>
+                ${uuDaiHtml}
+            </div>
+
+            <div class="muc">
+                <h3>⭐ Đánh giá</h3>
+
+                <div id="formDanhGia" class="form-danh-gia" style="display: none;">
+                    <p style="font-weight: 600; margin-bottom: 10px;">Đánh giá của bạn:</p>
+                    <div class="star-rating" id="starRating">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <textarea id="txtBinhLuan" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                    <button class="btn" style="margin-top: 10px;" onclick="guiDanhGia(${cs.maCoSo})">
+                        Gửi đánh giá (+10 điểm)
+                    </button>
+                </div>
+
+                <div id="yeuCauDangNhap" class="form-danh-gia" style="display: none;">
+                    <p style="text-align: center; color: #888;">
+                        Vui lòng <a href="dang-nhap.html" style="color: #667eea; font-weight: 600;">đăng nhập</a> để đánh giá
+                    </p>
+                </div>
+
+                <div id="danhSachDanhGia">
+                    <p class="loading">Đang tải đánh giá...</p>
+                </div>
+            </div>
+        </div>
+        `;
+
+        // Khởi tạo bản đồ
+        if (cs.viDo && cs.kinhDo) {
+            setTimeout(() => {
+                khoiTaoBanDo(cs.viDo, cs.kinhDo, cs.tenCoSo, cs.diaChi);
+            }, 100);
+} else {
+            setTimeout(() => {
+                const el = document.getElementById('map');
+                if (el) el.innerHTML =
+                    '<p style="text-align:center; padding: 20px; color: #888;">Chưa có tọa độ</p>';
+            }, 100);
+}
+
+        // ✅ SỬA: Kiểm tra quyền đánh giá (Chỉ Sinh viên mới được đánh giá)
+        if (Auth.coQuyen('danh-gia')) {
+            document.getElementById('formDanhGia').style.display = 'block';
+
+// Gắn sự kiện cho sao (chỉ khi hiển thị form)
+document.querySelectorAll('#starRating .star').forEach(star => {
+            star.addEventListener('click', () => {
+                diemDanhGiaChon = parseInt(star.dataset.value);
+                document.querySelectorAll('#starRating .star').forEach(s => {
+                    const val = parseInt(s.dataset.value);
+                    s.classList.toggle('active', val <= diemDanhGiaChon);
+                });
+            });
+});
+} else {
+const boxYeuCau = document.getElementById('yeuCauDangNhap');
+        boxYeuCau.style.display = 'block';
+
+        if (Auth.daDangNhap()) {
+            // Đã đăng nhập nhưng không phải Sinh viên (Admin, Đối tác)
+            boxYeuCau.innerHTML = `
+<p style="text-align: center; color: #888;">
+Chỉ Sinh viên mới có thể đánh giá cơ sở này.
+</p>
+`;
+} else {
+            // Chưa đăng nhập
+            boxYeuCau.innerHTML = `
+<p style="text-align: center; color: #888;">
+Vui lòng <a href="dang-nhap.html" style="color: #667eea; font-weight: 600;">đăng nhập</a> để đánh giá
+</p>
+`;
+}
+}
+
+        // Tải danh sách đánh giá
+        await taiDanhGia(cs.maCoSo);
+});
+
+        // ===== KHỞI TẠO BẢN ĐỒ =====
+        function khoiTaoBanDo(viDo, kinhDo, tenCoSo, diaChi) {
+            mapInstance = L.map('map').setView([viDo, kinhDo], 16);
+
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles © Esri',
+        maxZoom: 19
+}).addTo(mapInstance);
+
+        L.marker([viDo, kinhDo])
+        .addTo(mapInstance)
+        .bindPopup(`<b>${tenCoSo}</b><br>${diaChi || ''}`)
+            .openPopup();
+
+setTimeout(() => mapInstance.invalidateSize(), 300);
+}
+
+            // ===== ĐÁNH GIÁ =====
+            async function taiDanhGia(maCoSo) {
+const kq = await API.layDanhGiaTheoCoSo(maCoSo);
+            const box = document.getElementById('danhSachDanhGia');
+
+            if (!kq || kq.error || kq.length === 0) {
+                box.innerHTML = '<p style="color: #888;">Chưa có đánh giá nào</p>';
+            return;
+}
+
+box.innerHTML = kq.map(dg => `
+            <div class="danh-gia-item">
+                <div class="header">
+                    <span class="ten">👤 ${dg.tenNguoiDung}</span>
+                    <span class="ngay">${new Date(dg.ngayDanhGia).toLocaleDateString('vi-VN')}</span>
+                </div>
+                <div class="sao">${'★'.repeat(dg.diemDanhGia)}${'☆'.repeat(5 - dg.diemDanhGia)}</div>
+                <div class="binh-luan">${dg.binhLuan || '(Không có bình luận)'}</div>
+            </div>
+            `).join('');
+}
+
+            async function guiDanhGia(maCoSo) {
+if (diemDanhGiaChon === 0) {
+                alert('Vui lòng chọn số sao đánh giá');
+            return;
+}
+
+            const binhLuan = document.getElementById('txtBinhLuan').value.trim();
+
+            const kq = await API.guiDanhGia({
+                maCoSo: maCoSo,
+            diemDanhGia: diemDanhGiaChon,
+            binhLuan: binhLuan || null
+});
+
+            if (kq.error) {
+                alert(kq.message || 'Đánh giá thất bại');
+            return;
+}
+
+            alert(`✅ ${kq.message}`);
+
+            diemDanhGiaChon = 0;
+document.querySelectorAll('#starRating .star').forEach(s => s.classList.remove('active'));
+            document.getElementById('txtBinhLuan').value = '';
+
+            await taiDanhGia(maCoSo);
+}
+
+            // ===== BÁO CÁO VI PHẠM =====
+            function moModalBaoCao(maCoSo) {
+if (!Auth.daDangNhap()) {
+                alert('Vui lòng đăng nhập để báo cáo');
+            window.location.href = 'dang-nhap.html';
+            return;
+}
+
+            document.getElementById('loaiViPham').value = 'Thông tin sai lệch';
+            document.getElementById('chiTietBaoCao').value = '';
+            document.getElementById('modalBaoCao').classList.add('active');
+}
+
+            function dongModalBaoCao() {
+                document.getElementById('modalBaoCao').classList.remove('active');
+}
+
+            async function guiBaoCao() {
+const loaiViPham = document.getElementById('loaiViPham').value;
+            const chiTiet = document.getElementById('chiTietBaoCao').value.trim();
+
+            // Gộp loại vi phạm + chi tiết
+            const lyDo = chiTiet
+            ? `[${loaiViPham}] ${chiTiet}`
+            : loaiViPham;
+
+            const kq = await API.guiBaoCao({
+                loaiDoiTuong: 'co_so',
+            maDoiTuong: parseInt(maCoSoHienTai),
+            lyDo: lyDo
+});
+
+            if (kq.error) {
+                alert(kq.message || 'Không gửi được báo cáo');
+            return;
+}
+
+            alert('✅ ' + kq.message);
+            dongModalBaoCao();
+}
+
+// Đóng modal khi click ra ngoài
+document.getElementById('modalBaoCao').addEventListener('click', (e) => {
+if (e.target.id === 'modalBaoCao') dongModalBaoCao();
+});
+    </script>
+</body>
+</html>
+            alert('✅ ' + kq.message);
+            dongModalBaoCao();
+        }
+
+        // Đóng modal khi click ra ngoài
+        document.getElementById('modalBaoCao').addEventListener('click', (e) => {
+            if (e.target.id === 'modalBaoCao') dongModalBaoCao();
+        });
     </script>
 </body>
 </html>

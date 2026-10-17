@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Duyệt xác thực - Nexus Sinh Viên</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .yeu-cau-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .yeu-cau-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .yeu-cau-header h3 {
+                color: #333;
+                margin: 0;
+            }
+
+        .yeu-cau-body {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+            .yeu-cau-body .anh {
+                width: 100%;
+                max-width: 300px;
+                border-radius: 8px;
+                cursor: pointer;
+                border: 2px solid #e2e8f0;
+            }
+
+        .yeu-cau-info p {
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .yeu-cau-info strong {
+            color: #333;
+        }
+
+        .yeu-cau-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-duyet {
+            background: #38a169;
+            color: white;
+        }
+
+        .btn-tu-choi {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+            .empty-state .icon {
+                font-size: 80px;
+                margin-bottom: 20px;
+            }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+            .modal-overlay.active {
+                display: flex;
+            }
+
+            .modal-overlay img {
+                max-width: 90%;
+                max-height: 90%;
+                border-radius: 8px;
+            }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Nexus Sinh Viên - Duyệt xác thực</h1></div>
+            <nav class="nav">
+                <a href="quan-tri.html">Về quản trị</a>
+                <a href="#" onclick="Auth.dangXuat()">Đăng xuất</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">🎓 Yêu cầu xác thực sinh viên</h2>
+            <div id="danhSachYeuCau">
+                <p class="loading">Đang tải...</p>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal-overlay" id="modalAnh" onclick="dongAnh()">
+        <img id="anhLon" src="" alt="">
+    </div>
+
+    <footer class="footer">
+        <div class="container"><p>© 2026 Nexus Sinh Viên</p></div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.yeuCauAdmin()) return;
+            await taiDanhSach();
+        });
+
+        async function taiDanhSach() {
+            const ds = await API.layYeuCauXacThuc();
+            const box = document.getElementById('danhSachYeuCau');
+
+            if (!ds || ds.error || ds.length === 0) {
+                box.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">✅</div>
+                        <p>Không có yêu cầu nào chờ duyệt</p>
+                    </div>
+                `;
+                return;
+            }
+
+            box.innerHTML = ds.map(yc => `
+                <div class="yeu-cau-card" data-id="${yc.maYeuCau}">
+                    <div class="yeu-cau-header">
+                        <h3>👤 ${yc.hoTen}</h3>
+                        <span style="color: #888; font-size: 13px;">
+                            📅 ${new Date(yc.ngayTao).toLocaleString('vi-VN')}
+                        </span>
+                    </div>
+
+                    <div class="yeu-cau-body">
+                        <div class="yeu-cau-info">
+                            <p><strong>Email:</strong> ${yc.email}</p>
+                            <p><strong>Mã SV:</strong> ${yc.maSinhVien}</p>
+                            <p><strong>Trường:</strong> ${yc.truongDaiHoc}</p>
+                            ${yc.ghiChu ? `<p><strong>Ghi chú:</strong> ${yc.ghiChu}</p>` : ''}
+                        </div>
+                        <div>
+                            <p style="font-weight: 600; margin-bottom: 5px;">Thẻ sinh viên:</p>
+                            <img src="${yc.anhTheSinhVien}" class="anh"
+                                 onclick="xemAnh('${yc.anhTheSinhVien}')" alt="Thẻ SV">
+                        </div>
+                        <div>
+                            <p style="font-weight: 600; margin-bottom: 5px;">CCCD:</p>
+                            <img src="${yc.anhCCCD}" class="anh"
+                                 onclick="xemAnh('${yc.anhCCCD}')" alt="CCCD">
+                        </div>
+                    </div>
+
+                    <div class="yeu-cau-actions">
+                        <button class="btn btn-duyet" onclick="duyet(${yc.maYeuCau})">
+                            ✅ Duyệt
+                        </button>
+                        <button class="btn btn-tu-choi" onclick="tuChoi(${yc.maYeuCau})">
+                            ❌ Từ chối
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function duyet(id) {
+            if (!confirm('Duyệt yêu cầu xác thực này?')) return;
+            const kq = await API.duyetXacThuc(id);
+            if (kq.error) { alert(kq.message); return; }
+            alert('✅ ' + kq.message);
+            await taiDanhSach();
+        }
+
+        async function tuChoi(id) {
+            const lyDo = prompt('Lý do từ chối:');
+            if (!lyDo || !lyDo.trim()) return;
+            const kq = await API.tuChoiXacThuc(id, lyDo.trim());
+            if (kq.error) { alert(kq.message); return; }
+            alert('✅ ' + kq.message);
+            await taiDanhSach();
+        }
+
+        function xemAnh(url) {
+            document.getElementById('anhLon').src = url;
+            document.getElementById('modalAnh').classList.add('active');
+        }
+
+        function dongAnh() {
+            document.getElementById('modalAnh').classList.remove('active');
+        }
+    </script>
+</body>
+</html>

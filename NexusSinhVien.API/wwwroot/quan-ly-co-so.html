@@ -1,0 +1,293 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý cơ sở - Uni-Link</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .co-so-manage-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+            .co-so-manage-card .anh {
+                width: 120px;
+                height: 120px;
+                background: linear-gradient(135deg, #a8b8e8, #d0a8e8);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 50px;
+                flex-shrink: 0;
+                background-size: cover;
+                background-position: center;
+            }
+
+            .co-so-manage-card .info {
+                flex: 1;
+                min-width: 250px;
+            }
+
+            .co-so-manage-card h3 {
+                color: #333;
+                margin-bottom: 10px;
+            }
+
+            .co-so-manage-card p {
+                color: #666;
+                margin-bottom: 5px;
+                font-size: 14px;
+            }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+            .badge.hoat_dong {
+                background: #c6f6d5;
+                color: #2f855a;
+            }
+
+            .badge.cho_duyet {
+                background: #feebc8;
+                color: #c05621;
+            }
+
+            .badge.tam_ngung {
+                background: #fed7d7;
+                color: #c53030;
+            }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.2s;
+        }
+
+            .btn-sm:hover {
+                transform: translateY(-2px);
+            }
+
+        .btn-primary {
+            background: #667eea;
+        }
+
+        .btn-success {
+            background: #38a169;
+        }
+
+        .btn-warning {
+            background: #dd6b20;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #888;
+        }
+
+            .empty-state .icon {
+                font-size: 80px;
+                margin-bottom: 20px;
+            }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Uni-Link</h1></div>
+            <nav class="nav" id="mainNav">
+                <!-- Menu render động bằng JS -->
+            </nav>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <div class="page-header">
+                <h2 class="section-title" style="margin:0;">🏪 Cơ sở của tôi</h2>
+                <a href="dang-ky-co-so.html" class="btn-sm btn-success" style="padding: 12px 20px;">
+                    ➕ Đăng ký cơ sở mới
+                </a>
+            </div>
+
+            <div id="danhSachCoSo">
+                <p class="loading">Đang tải...</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container"><p>© 2026 Uni-Link</p></div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        // =====================================================
+        // MENU ĐỘNG THEO VAI TRÒ
+        // =====================================================
+        function capNhatMenuTheoVaiTro() {
+            const user = Auth.layNguoiDung();
+            const nav = document.getElementById('mainNav');
+            if (!nav) return;
+
+            let menuHtml = `
+                    <a href="index.html">Trang chủ</a>
+                    <a href="tim-kiem.html">Tìm kiếm</a>
+                    <a href="uu-dai.html">Ưu đãi</a>
+                `;
+
+            if (user) {
+                const loai = user.loaiNguoiDung;
+
+                // Đối tác (CSKD + Admin) thấy "Quản lý cơ sở"
+                if (loai === 'co_so_kinh_doanh' || loai === 'quan_tri') {
+                    menuHtml += `<a href="quan-ly-co-so.html">🏪 Quản lý</a>`;
+                }
+
+                // Chỉ Admin thấy "Quản trị" + "Thống kê"
+                if (loai === 'quan_tri') {
+                    menuHtml += `<a href="quan-tri.html">👑 Quản trị</a>`;
+                    menuHtml += `<a href="thong-ke.html">📈 Thống kê</a>`;
+                }
+
+                menuHtml += `<a href="ca-nhan.html" id="btnDangNhap">👤 ${user.hoTen}</a>`;
+            } else {
+                menuHtml += `<a href="dang-nhap.html" id="btnDangNhap">Đăng nhập</a>`;
+            }
+
+            nav.innerHTML = menuHtml;
+        }
+
+        // =====================================================
+        // KHỞI TẠO KHI LOAD TRANG
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // ✅ Dùng phương thức phân quyền mới
+            if (!Auth.yeuCauDoiTac()) return;
+
+            capNhatMenuTheoVaiTro();
+            await taiCoSo();
+        });
+
+        // =====================================================
+        // TẢI DANH SÁCH CƠ SỞ
+        // =====================================================
+        async function taiCoSo() {
+            const box = document.getElementById('danhSachCoSo');
+            box.innerHTML = '<p class="loading">Đang tải...</p>';
+
+            const ds = await API.layCoSoCuaToi();
+
+            if (!ds || ds.error || ds.length === 0) {
+                box.innerHTML = `
+                        <div class="empty-state">
+                            <div class="icon">🏪</div>
+                            <p>Bạn chưa có cơ sở nào</p>
+                            <a href="dang-ky-co-so.html" class="btn-sm btn-primary"
+                               style="display: inline-block; margin-top: 15px; padding: 12px 24px;">
+                                ➕ Đăng ký ngay
+                            </a>
+                        </div>
+                    `;
+                return;
+            }
+
+            box.innerHTML = ds.map(cs => {
+                let tenTrangThai = '';
+                if (cs.trangThai === 'hoat_dong') tenTrangThai = '✅ Hoạt động';
+                else if (cs.trangThai === 'cho_duyet') tenTrangThai = '⏳ Chờ duyệt';
+                else tenTrangThai = '⚠️ Tạm ngưng';
+
+                // Xử lý ảnh: nếu có danh sách ảnh thì hiển thị
+                const anhHtml = cs.danhSachAnh
+                    ? `<div class="anh" style="background-image: url('${cs.danhSachAnh}'); color: transparent;"></div>`
+                    : `<div class="anh">🏪</div>`;
+
+                return `
+                        <div class="co-so-manage-card">
+                            ${anhHtml}
+                            <div class="info">
+                                <h3>${cs.tenCoSo}</h3>
+                                <p>📍 ${cs.diaChi || 'Chưa có địa chỉ'}</p>
+                                <p>📞 ${cs.soDienThoai || 'Chưa có SĐT'}</p>
+                                <p>🕐 ${cs.gioMoCua || 'Chưa có giờ mở cửa'}</p>
+                                <p>⭐ ${cs.danhGiaTrungBinh?.toFixed(1) || '0.0'}/5</p>
+                                <p style="margin-top: 10px;">
+                                    <span class="badge ${cs.trangThai}">${tenTrangThai}</span>
+                                </p>
+                            </div>
+                            <div class="actions">
+                                <button class="btn-sm btn-primary"
+                                        onclick="xemChiTiet(${cs.maCoSo})">
+                                    👁️ Xem
+                                </button>
+                                <button class="btn-sm btn-warning"
+                                        onclick="suaCoSo(${cs.maCoSo})">
+                                    ✏️ Sửa
+                                </button>
+                                <button class="btn-sm btn-success"
+                                        onclick="quanLyDichVu(${cs.maCoSo})">
+                                    🍽️ Dịch vụ
+                                </button>
+                            </div>
+                        </div>
+                    `;
+            }).join('');
+        }
+
+        // =====================================================
+        // HÀM XỬ LÝ SỰ KIỆN
+        // =====================================================
+        function xemChiTiet(maCoSo) {
+            window.location.href = `chi-tiet.html?id=${maCoSo}`;
+        }
+
+        function suaCoSo(maCoSo) {
+            window.location.href = `sua-co-so.html?id=${maCoSo}`;
+        }
+
+        function quanLyDichVu(maCoSo) {
+            window.location.href = `quan-ly-dich-vu.html?co-so=${maCoSo}`;
+        }
+    </script>
+</body>
+</html>

@@ -3,17 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Sinh Viên - Trang chủ</title>
+    <title>Uni-Link - Trang chủ</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Nút chia sẻ */
+        .btn-chia-se {
+            background: linear-gradient(135deg, #38a169, #2f855a);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .btn-chia-se:hover {
+                transform: translateY(-2px);
+            }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .section-header .section-title {
+                margin: 0;
+            }
+
+        /* Nút xác định vị trí */
+        .btn-vi-tri {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+            .btn-vi-tri:hover {
+                transform: translateY(-2px);
+            }
+    </style>
 </head>
 <body>
     <!-- ============ HEADER ============ -->
     <header class="header">
         <div class="container header-inner">
             <div class="logo">
-                <h1>🎓 Nexus Sinh Viên</h1>
+                <h1>🎓 Uni-Link</h1>
             </div>
-            <nav class="nav">
+            <nav class="nav" id="mainNav">
+                <!-- Menu sẽ được render động bằng JS theo vai trò -->
                 <a href="index.html">Trang chủ</a>
                 <a href="tim-kiem.html">Tìm kiếm</a>
                 <a href="uu-dai.html">Ưu đãi</a>
@@ -45,81 +97,18 @@
         </div>
     </section>
 
-    <!-- ============ ƯU ĐÃI ============ -->
-    <section class="section">
+    <!-- ============ GẦN BẠN ============ -->
+    <section class="section" id="sectionGanBan">
         <div class="container">
-            <h3 class="section-title">🔥 Ưu đãi hot</h3>
-            <div class="uu-dai-grid" id="uuDaiGrid">
-                <p class="loading">Đang tải...</p>
+            <div class="section-header">
+                <h3 class="section-title">📍 Gần bạn</h3>
+                <!-- Đã thêm id="btnViTri" cho nút này -->
+                <button class="btn-vi-tri" id="btnViTri" onclick="batDauTheoDoi()">
+                    🎯 Xác định vị trí
+                </button>
             </div>
-        </div>
-    </section>
-
-    <!-- ============ CƠ SỞ ============ -->
-    <section class="section">
-        <div class="container">
-            <h3 class="section-title">⭐ Cơ sở nổi bật</h3>
-            <div class="co-so-grid" id="coSoGrid">
-                <p class="loading">Đang tải...</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============ FOOTER ============ -->
-    <footer class="footer">
-        <div class="container">
-            <p>© 2026 Nexus Sinh Viên - Dự án đồ án tốt nghiệp</p>
-            <p>Trường Đại học Thủ đô Hà Nội</p>
-        </div>
-    </footer>
-
-    <script src="js/api.js"></script>
-    <script src="js/trang-chu.js"></script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Sinh Viên - Trang chủ</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <!-- ============ HEADER ============ -->
-    <header class="header">
-        <div class="container header-inner">
-            <div class="logo">
-                <h1>🎓 Nexus Sinh Viên</h1>
-            </div>
-            <nav class="nav">
-                <a href="index.html">Trang chủ</a>
-                <a href="tim-kiem.html">Tìm kiếm</a>
-                <a href="uu-dai.html">Ưu đãi</a>
-                <a href="dang-nhap.html" id="btnDangNhap">Đăng nhập</a>
-            </nav>
-        </div>
-    </header>
-
-    <!-- ============ HERO + SEARCH ============ -->
-    <section class="hero">
-        <div class="container">
-            <h2>Tìm dịch vụ quanh trường bạn</h2>
-            <p class="hero-desc">Kết nối sinh viên với hệ sinh thái dịch vụ ngoại thành Hà Nội</p>
-            <div class="search-box">
-                <input type="text" id="txtTimKiem"
-                       placeholder="Tìm quán ăn, nhà trọ, dịch vụ...">
-                <button onclick="timKiem()">🔍 Tìm</button>
-            </div>
-        </div>
-    </section>
-
-    <!-- ============ DANH MỤC ============ -->
-    <section class="section">
-        <div class="container">
-            <h3 class="section-title">📂 Danh mục dịch vụ</h3>
-            <div class="danh-muc-grid" id="danhMucGrid">
-                <p class="loading">Đang tải...</p>
+            <div class="co-so-grid" id="coSoGanBanGrid">
+                <p class="loading">Nhấn "🎯 Xác định vị trí" để tìm cơ sở gần bạn</p>
             </div>
         </div>
     </section>
@@ -137,7 +126,14 @@
     <!-- ============ CƠ SỞ ============ -->
     <section class="section">
         <div class="container">
-            <h3 class="section-title">⭐ Cơ sở nổi bật</h3>
+            <div class="section-header">
+                <h3 class="section-title">⭐ Cơ sở nổi bật</h3>
+                <!-- Nút chia sẻ chỉ hiện khi đã đăng nhập -->
+                <button class="btn-chia-se" onclick="chiaSeNhanDiem()"
+                        data-quyen="tich-diem">
+                    🎁 Chia sẻ nhận 20 điểm
+                </button>
+            </div>
             <div class="co-so-grid" id="coSoGrid">
                 <p class="loading">Đang tải...</p>
             </div>
@@ -146,13 +142,222 @@
 
     <!-- ============ FOOTER ============ -->
     <footer class="footer">
-        <div class="container">
-            <p>© 2026 Nexus Sinh Viên - Dự án đồ án tốt nghiệp</p>
-            <p>Trường Đại học Thủ đô Hà Nội</p>
-        </div>
+        <div class="container"><p>© 2026 Uni-Link</p></div>
     </footer>
 
     <script src="js/api.js"></script>
     <script src="js/trang-chu.js"></script>
+    <script>
+        // =====================================================
+        // CẬP NHẬT MENU THEO VAI TRÒ
+        // =====================================================
+        function capNhatMenuTheoVaiTro() {
+            const user = Auth.layNguoiDung();
+            const nav = document.getElementById('mainNav');
+            if (!nav) return;
+
+            let menuHtml = `
+                        <a href="index.html">Trang chủ</a>
+                        <a href="tim-kiem.html">Tìm kiếm</a>
+                        <a href="uu-dai.html">Ưu đãi</a>
+                    `;
+
+            if (!user) {
+                menuHtml += `<a href="dang-nhap.html" id="btnDangNhap">Đăng nhập</a>`;
+            } else {
+                const loai = user.loaiNguoiDung;
+
+                if (loai === 'co_so_kinh_doanh' || loai === 'quan_tri') {
+                    menuHtml += `<a href="quan-ly-co-so.html">🏪 Quản lý</a>`;
+                }
+
+                if (loai === 'quan_tri') {
+                    menuHtml += `<a href="quan-tri.html">👑 Quản trị</a>`;
+                    menuHtml += `<a href="thong-ke.html">📈 Thống kê</a>`;
+                }
+
+                menuHtml += `<a href="ca-nhan.html" id="btnDangNhap">👤 ${user.hoTen}</a>`;
+            }
+
+            nav.innerHTML = menuHtml;
+        }
+
+        // =====================================================
+        // ẨN/HIỆN PHẦN TỬ THEO data-quyen
+        // =====================================================
+        function capNhatPhanTuTheoQuyen() {
+            document.querySelectorAll('[data-quyen]').forEach(el => {
+                const quyen = el.dataset.quyen;
+                if (!Auth.coQuyen(quyen)) {
+                    el.style.display = 'none';
+                }
+            });
+        }
+
+        // =====================================================
+        // KHỞI TẠO KHI TRANG LOAD
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            capNhatMenuTheoVaiTro();
+            capNhatPhanTuTheoQuyen();
+        });
+
+        // =====================================================
+        // TÍNH NĂNG 1: GẦN BẠN (TỰ ĐỘNG CẬP NHẬT KHI DI CHUYỂN)
+        // =====================================================
+        let watchId = null;
+        let viDoCu = null;
+        let kinhDoCu = null;
+
+        // Hàm tính khoảng cách Haversine (trả về km)
+        function tinhKhoangCach(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // Bấm lần 1: Bắt đầu theo dõi
+        function batDauTheoDoi() {
+            if (!navigator.geolocation) {
+                alert('Trình duyệt không hỗ trợ định vị');
+                return;
+            }
+
+            const btn = document.getElementById('btnViTri');
+            const grid = document.getElementById('coSoGanBanGrid');
+
+            // Đổi trạng thái nút
+            btn.innerHTML = '⏹ Dừng theo dõi';
+            btn.style.background = '#e53e3e'; // Màu đỏ
+            btn.onclick = dungTheoDoi;
+
+            grid.innerHTML = '<p class="loading">📍 Đang bật GPS theo dõi...</p>';
+
+            // Bắt đầu theo dõi liên tục
+            watchId = navigator.geolocation.watchPosition(
+                async (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+
+                    // Nếu đã có vị trí cũ, kiểm tra xem đã di chuyển đủ xa chưa (50 mét)
+                    if (viDoCu !== null && kinhDoCu !== null) {
+                        const distance = tinhKhoangCach(viDoCu, kinhDoCu, lat, lng);
+                        // Nếu di chuyển chưa đến 50 mét thì bỏ qua, không gọi API
+                        if (distance < 0.05) return;
+                    }
+
+                    // Cập nhật vị trí mới
+                    viDoCu = lat;
+                    kinhDoCu = lng;
+
+                    grid.innerHTML = `<p class="loading">🔍 Đang tìm cơ sở quanh vị trí (${lat.toFixed(4)}, ${lng.toFixed(4)})...</p>`;
+
+                    const ds = await API.layDanhSachCoSo({
+                        viDo: lat,
+                        kinhDo: lng,
+                        banKinh: 5
+                    });
+
+                    if (!ds || ds.error || ds.length === 0) {
+                        grid.innerHTML = `
+                                <p class="loading" style="grid-column: 1/-1;">
+                                    😔 Không có cơ sở nào trong bán kính 5km.<br>
+                                    <span style="font-size: 13px; color: #888;">(Tọa độ của bạn: ${lat.toFixed(4)}, ${lng.toFixed(4)})</span>
+                                </p>
+                            `;
+                        return;
+                    }
+
+                    grid.innerHTML = ds.slice(0, 6).map(cs => `
+                            <div class="co-so-card" onclick="xemChiTiet(${cs.maCoSo})">
+                                <div class="anh">🏪</div>
+                                <div class="noi-dung">
+                                    <h4>${cs.tenCoSo}</h4>
+                                    <div class="dia-chi">📍 ${cs.diaChi || 'Chưa có địa chỉ'}</div>
+                                    <div class="danh-gia">⭐ ${cs.danhGiaTrungBinh?.toFixed(1) || '0.0'}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                },
+                (err) => {
+                    let msg = '❌ Không lấy được vị trí';
+                    if (err.code === 1) msg = '❌ Bạn chưa cho phép truy cập vị trí';
+                    else if (err.code === 2) msg = '❌ Không xác định được vị trí';
+                    else if (err.code === 3) msg = '❌ Quá thời gian xác định vị trí';
+
+                    grid.innerHTML = `<p class="loading" style="grid-column: 1/-1;">${msg}</p>`;
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
+        // Bấm lần 2: Dừng theo dõi (tiết kiệm pin)
+        function dungTheoDoi() {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+            }
+
+            const btn = document.getElementById('btnViTri');
+            btn.innerHTML = '🎯 Xác định vị trí';
+            btn.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+            btn.onclick = batDauTheoDoi;
+
+            document.getElementById('coSoGanBanGrid').innerHTML =
+                '<p class="loading">Đã dừng theo dõi. Nhấn nút để bật lại.</p>';
+        }
+
+        // =====================================================
+        // TÍNH NĂNG 2: CHIA SẺ NHẬN ĐIỂM
+        // =====================================================
+        async function chiaSeNhanDiem() {
+            if (!Auth.daDangNhap()) {
+                alert('Vui lòng đăng nhập để nhận điểm');
+                window.location.href = 'dang-nhap.html';
+                return;
+            }
+
+            if (!Auth.coQuyen('tich-diem')) {
+                alert('⛔ Bạn không có quyền thực hiện');
+                return;
+            }
+
+            const url = window.location.origin;
+            const shareData = {
+                title: 'Uni-Link',
+                text: 'Khám phá nền tảng dịch vụ sinh viên ngoại thành Hà Nội!',
+                url: url
+            };
+
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                }
+            } else {
+                try {
+                    await navigator.clipboard.writeText(url);
+                    alert('📋 Đã copy link! Hãy chia sẻ cho bạn bè nhé.');
+                } catch {
+                    prompt('Copy link này để chia sẻ:', url);
+                }
+            }
+
+            const kq = await API.chiaSe();
+            if (kq.error) {
+                if (kq.status === 400) {
+                    alert(kq.message);
+                }
+            } else {
+                alert(`✅ ${kq.message}\n💰 Điểm tích lũy: ${kq.diemTichLuy}`);
+            }
+        }
+    </script>
 </body>
 </html>

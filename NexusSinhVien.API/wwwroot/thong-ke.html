@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống kê - Uni-Link</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+        }
+
+            .stat-card:nth-child(2) {
+                background: linear-gradient(135deg, #38a169, #2f855a);
+            }
+
+            .stat-card:nth-child(3) {
+                background: linear-gradient(135deg, #dd6b20, #c05621);
+            }
+
+            .stat-card:nth-child(4) {
+                background: linear-gradient(135deg, #e53e3e, #c53030);
+            }
+
+            .stat-card:nth-child(5) {
+                background: linear-gradient(135deg, #805ad5, #6b46c1);
+            }
+
+            .stat-card .so {
+                font-size: 42px;
+                font-weight: bold;
+            }
+
+            .stat-card .label {
+                opacity: 0.9;
+                font-size: 14px;
+                margin-top: 8px;
+            }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 992px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-box {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+            .chart-box h3 {
+                color: #333;
+                margin-bottom: 20px;
+                font-size: 18px;
+            }
+
+            .chart-box canvas {
+                max-height: 300px;
+            }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="logo"><h1>🎓 Uni-Link - Thống kê</h1></div>
+            <nav class="nav" id="mainNav">
+                <a href="quan-tri.html">Quản trị</a>
+                <a href="index.html">Trang chủ</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">📊 Thống kê tổng quan</h2>
+
+            <div class="stats-grid" id="statsGrid">
+                <p class="loading">Đang tải...</p>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-box">
+                    <h3>👥 Người dùng theo vai trò</h3>
+                    <canvas id="chartNguoiDung"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>🏪 Cơ sở theo danh mục</h3>
+                    <canvas id="chartCoSo"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>📌 Cơ sở theo trạng thái</h3>
+                    <canvas id="chartTrangThai"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>⭐ Đánh giá trung bình</h3>
+                    <div style="text-align:center; padding: 40px 0;">
+                        <div style="font-size: 80px; color: #ffa500;">⭐</div>
+                        <div style="font-size: 32px; font-weight: bold; color: #333;" id="diemTB">0.0</div>
+                        <div style="color: #888;">trên 5.0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container"><p>© 2026 Uni-Link</p></div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script>
+        // =====================================================
+        // KIỂM TRA QUYỀN NGAY KHI LOAD
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // ✅ Dùng phương thức phân quyền mới
+            if (!Auth.yeuCauAdmin()) return;
+
+            // Cập nhật tên admin trên header
+            const user = Auth.layNguoiDung();
+            if (user) {
+                document.getElementById('mainNav').innerHTML = `
+                        <a href="quan-tri.html">Quản trị</a>
+                        <a href="index.html">Trang chủ</a>
+                        <a href="#" onclick="dangXuat()">👤 ${user.hoTen}</a>
+                    `;
+            }
+
+            await taiThongKe();
+        });
+
+        // =====================================================
+        // TẢI DỮ LIỆU THỐNG KÊ
+        // =====================================================
+        async function taiThongKe() {
+            const tk = await API.layThongKe();
+
+            if (!tk || tk.error) {
+                document.getElementById('statsGrid').innerHTML =
+                    '<p style="color: #c53030;">Không tải được dữ liệu</p>';
+                return;
+            }
+
+            // Stats grid - 5 thẻ
+            document.getElementById('statsGrid').innerHTML = `
+                    <div class="stat-card">
+                        <div class="so">${tk.tongNguoiDung}</div>
+                        <div class="label">👥 Người dùng</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="so">${tk.tongCoSo}</div>
+                        <div class="label">🏪 Cơ sở</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="so">${tk.tongDichVu}</div>
+                        <div class="label">🍽️ Dịch vụ</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="so">${tk.tongUuDai}</div>
+                        <div class="label">🎁 Ưu đãi</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="so">${tk.tongDanhGia}</div>
+                        <div class="label">⭐ Đánh giá</div>
+                    </div>
+                `;
+
+            // ===== CHART 1: Người dùng theo vai trò =====
+            const labelsNguoiDung = tk.nguoiDungTheoLoai.map(x => {
+                if (x.loai === 'sinh_vien') return 'Sinh viên';
+                if (x.loai === 'quan_tri') return 'Quản trị viên';
+                if (x.loai === 'co_so_kinh_doanh') return 'Cơ sở KD';
+                return x.loai;
+            });
+            const dataNguoiDung = tk.nguoiDungTheoLoai.map(x => x.soLuong);
+
+            new Chart(document.getElementById('chartNguoiDung'), {
+                type: 'doughnut',
+                data: {
+                    labels: labelsNguoiDung,
+                    datasets: [{
+                        data: dataNguoiDung,
+                        backgroundColor: ['#667eea', '#e53e3e', '#38a169', '#dd6b20']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // ===== CHART 2: Cơ sở theo danh mục =====
+            const labelsCoSo = tk.coSoTheoDanhMuc.map(x => x.tenDanhMuc);
+            const dataCoSo = tk.coSoTheoDanhMuc.map(x => x.soLuong);
+
+            new Chart(document.getElementById('chartCoSo'), {
+                type: 'bar',
+                data: {
+                    labels: labelsCoSo,
+                    datasets: [{
+                        label: 'Số lượng cơ sở',
+                        data: dataCoSo,
+                        backgroundColor: '#667eea',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+
+            // ===== CHART 3: Cơ sở theo trạng thái =====
+            const labelsTT = tk.coSoTheoTrangThai.map(x => {
+                if (x.trangThai === 'hoat_dong') return 'Hoạt động';
+                if (x.trangThai === 'cho_duyet') return 'Chờ duyệt';
+                if (x.trangThai === 'tam_ngung') return 'Tạm ngưng';
+                return x.trangThai;
+            });
+            const dataTT = tk.coSoTheoTrangThai.map(x => x.soLuong);
+
+            new Chart(document.getElementById('chartTrangThai'), {
+                type: 'pie',
+                data: {
+                    labels: labelsTT,
+                    datasets: [{
+                        data: dataTT,
+                        backgroundColor: ['#38a169', '#dd6b20', '#e53e3e']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // =====================================================
+        // ĐĂNG XUẤT
+        // =====================================================
+        function dangXuat() {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                Auth.dangXuat();
+            }
+        }
+    </script>
+</body>
+</html>
