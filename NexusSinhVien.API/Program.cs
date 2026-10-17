@@ -6,11 +6,14 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ✅ THÊM DÒNG NÀY: Lấy cổng (PORT) do Railway cấp, nếu không có thì mặc định là 8080
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // ============================================================
 // 1. ĐĂNG KÝ DỊCH VỤ
 // ============================================================
 
-// ✅ CẬP NHẬT: Thêm cấu hình SplitQuery để tối ưu hiệu năng
 builder.Services.AddDbContext<NexusDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -47,7 +50,6 @@ builder.Services.AddCors(options =>
 });
 
 // Controllers
-// ✅ SỬA LẠI: Thêm AddJsonOptions để tự động chuyển PascalCase (C#) sang camelCase (JS)
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -67,7 +69,8 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
+// ❌ ĐÃ COMMENT DÒNG NÀY LẠI: Railway đã tự động xử lý HTTPS, không cần ép buộc trong code
+// app.UseHttpsRedirection(); 
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
@@ -78,7 +81,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 // ============================================================
-// 3. SEED DATA (KHÔNG chạy Migrate vì đã tạo bảng thủ công)
+// 3. SEED DATA
 // ============================================================
 using (var scope = app.Services.CreateScope())
 {
